@@ -1,0 +1,25 @@
+{
+    "name": "s3-streaming-upload",
+    "description": "Streaming upload to S3",
+    "version": "0.0.1",
+    "author": "Apiary Ltd <team@apiary.io>",
+    "contributors": [
+        {
+            "name": "Lukas Linhart",
+            "email": "lukas@apiary.io"
+        }
+    ],
+    "dependencies": {
+        "async":   "",
+        "aws-sdk": ""
+    },
+    "keywords": [
+        "aws",
+        "s3"
+    ],
+    "repository": "git://github.com/apiaryio/s3-streaming-upload",
+    "main": "index",
+    "engines": {
+        "node": "*"
+    }
+}
