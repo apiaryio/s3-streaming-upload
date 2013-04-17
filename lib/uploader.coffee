@@ -27,7 +27,7 @@ class Uploader extends EventEmitter
     @initiated       = false
     @receivedAllData = false
     @failed          = false
-    @partNumber      = 0
+    @partNumber      = 1
     @parts           = []
     @uploadedParts   = {}
     @partSize        = partSize or 5242880 # 5MB
@@ -104,15 +104,15 @@ class Uploader extends EventEmitter
         PartNumber: currentPartNumber.toString()
         UploadId:   @uploadId
       , (err, data) =>
-          chunk.progress = false
-          chunk.finished = true
+        chunk.progress = false
+        chunk.finished = true
 
-          @uploadedParts[currentPartNumber] = data.ETag
+        @uploadedParts[currentPartNumber] = data.ETag
 
-          if err then @emit 'error', err
-          @emit 'uploaded', etag: data.ETag
+        if err then @emit 'error', err
+        @emit 'uploaded', etag: data.ETag
 
-      next()
+        next()
 
     , (err) =>
       @pruneParts()
