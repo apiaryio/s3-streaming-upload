@@ -26,12 +26,15 @@ class Uploader extends EventEmitter
 
     @initiated       = false
     @receivedAllData = false
+    @failed          = false
     @partNumber      = 0
     @parts           = []
     @uploadedParts   = {}
     @partSize        = partSize or 5242880 # 5MB
     @currentChunk    = new Buffer 0
 
+
+    @on 'error', (err) => @failed = true
 
     @handleStream stream
     process.nextTick => @initiateTransfer()
@@ -59,6 +62,7 @@ class Uploader extends EventEmitter
       if @currentChunk.length > @partSize
         @flushPart()
 
+    stream.on 'error', (err) -> @failed = true
     stream.on 'close', -> console.error 'closed'
     stream.on 'end', =>
       @receivedAllData = true
@@ -147,7 +151,12 @@ class Uploader extends EventEmitter
       MultipartUpload: Parts: ({'ETag': etag, 'PartNumber': parseInt(partNumber, 10)} for partNumber, etag of @uploadedParts)
     , (err, data) =>
       @emit 'finished', data
-      if err then return @emit 'error', err
+      if err
+        @emit 'error', err
+        @failed = true
+
+      if @failed
+        return @emit 'failed', err
       @emit 'completed', err, location: data.Location, bucket: data.Bucket, key: data.Key, etag: data.ETag, expiration: data.Expiration, versionId: data.VersionId
 
 module.exports =
