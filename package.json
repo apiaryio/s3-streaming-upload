@@ -15,7 +15,14 @@
     },
     "keywords": [
         "aws",
-        "s3"
+        "s3",
+        "stream"
+    ],
+    "licenses": [
+        {
+          "type": "MIT",
+          "url": "https://github.com/apiaryio/s3-streaming-upload/blob/master/README.md"
+        }
     ],
     "repository": "git://github.com/apiaryio/s3-streaming-upload",
     "main": "index",
