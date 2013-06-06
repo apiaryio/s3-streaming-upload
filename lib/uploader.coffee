@@ -6,8 +6,9 @@ aws            = require 'aws-sdk'
 
 class Uploader extends EventEmitter
   #FIXME: 0 records?
-  constructor: ({accessKey, secretKey, region, stream, objectName, objectParams, bucket, partSize, maxBufferSize}, @cb) ->
+  constructor: ({accessKey, secretKey, region, stream, objectName, objectParams, bucket, partSize, maxBufferSize, verbose}, @cb) ->
     super()
+
     aws.config.update
       accessKeyId:     accessKey
       secretAccessKey: secretKey
@@ -18,7 +19,11 @@ class Uploader extends EventEmitter
     @objectParams.Bucket ?= bucket
     @objectParams.Key    ?= objectName
 
-    @maxBufferSize = maxBufferSize # TODO
+    @maxBufferSize        = maxBufferSize # TODO
+    @partSize             = partSize or 5242880 # 5MB
+    @verbose             ?= false
+
+
 
     if not @objectParams.Bucket then throw new Error "Bucket must be given"
 
@@ -30,13 +35,12 @@ class Uploader extends EventEmitter
     @partNumber      = 1
     @parts           = []
     @uploadedParts   = {}
-    @partSize        = partSize or 5242880 # 5MB
     @currentChunk    = new Buffer 0
 
 
     @on 'error', (err) => @failed = true
 
-    @handleStream stream
+    @setStreamHandlers stream
     process.nextTick => @initiateTransfer()
 
 
@@ -54,7 +58,7 @@ class Uploader extends EventEmitter
       @emit 'initiated', @uploadId
 
 
-  handleStream: (stream) ->
+  setStreamHandlers: (stream) ->
     stream.on 'data', (chunk) =>
       if typeof(chunk) is 'string' then chunk = new Buffer chunk, 'utf-8'
       @currentChunk = Buffer.concat [@currentChunk, chunk]
@@ -107,14 +111,15 @@ class Uploader extends EventEmitter
         chunk.progress = false
         chunk.finished = true
 
-        @uploadedParts[currentPartNumber] = data.ETag
+        @uploadedParts[currentPartNumber] = data?.ETag
 
         if err then @emit 'error', err
-        @emit 'uploaded', etag: data.ETag
+        @emit 'uploaded', etag: data?.ETag
 
-        next()
+        next err
 
     , (err) =>
+      if err then console.error 'Upload failed', err
       @pruneParts()
 
 
@@ -137,6 +142,7 @@ class Uploader extends EventEmitter
       if @parts.length is 0
         @finishJob()
       else
+        process.stdout.write('W') if @verbose
         setTimeout (=> @pruneParts()), 500
 
 
