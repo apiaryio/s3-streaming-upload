@@ -6,9 +6,8 @@ aws            = require 'aws-sdk'
 
 class Uploader extends EventEmitter
   #FIXME: 0 records?
-  constructor: ({accessKey, secretKey, region, stream, objectName, objectParams, bucket, partSize, maxBufferSize, verbose}, @cb) ->
+  constructor: ({accessKey, secretKey, region, stream, objectName, objectParams, bucket, partSize, maxBufferSize}, @cb) ->
     super()
-
     aws.config.update
       accessKeyId:     accessKey
       secretAccessKey: secretKey
@@ -19,11 +18,7 @@ class Uploader extends EventEmitter
     @objectParams.Bucket ?= bucket
     @objectParams.Key    ?= objectName
 
-    @maxBufferSize        = maxBufferSize # TODO
-    @partSize             = partSize or 5242880 # 5MB
-    @verbose             ?= false
-
-
+    @maxBufferSize = maxBufferSize # TODO
 
     if not @objectParams.Bucket then throw new Error "Bucket must be given"
 
@@ -35,12 +30,13 @@ class Uploader extends EventEmitter
     @partNumber      = 1
     @parts           = []
     @uploadedParts   = {}
+    @partSize        = partSize or 5242880 # 5MB
     @currentChunk    = new Buffer 0
 
 
     @on 'error', (err) => @failed = true
 
-    @setStreamHandlers stream
+    @handleStream stream
     process.nextTick => @initiateTransfer()
 
 
@@ -58,7 +54,7 @@ class Uploader extends EventEmitter
       @emit 'initiated', @uploadId
 
 
-  setStreamHandlers: (stream) ->
+  handleStream: (stream) ->
     stream.on 'data', (chunk) =>
       if typeof(chunk) is 'string' then chunk = new Buffer chunk, 'utf-8'
       @currentChunk = Buffer.concat [@currentChunk, chunk]
@@ -94,32 +90,44 @@ class Uploader extends EventEmitter
   uploadChunks: ->
     async.forEach @parts, (chunk, next) =>
       if chunk.progress or chunk.finished
-        return next()
+        next()
+      else
+        if not chunk.partNumber
+          chunk.partNumber = @partNumber
+          @partNumber += 1
 
-      currentPartNumber = @partNumber
+        chunk.progress = true
 
-      chunk.progress = true
-      @partNumber++
+        @client.uploadPart
+          Body:       chunk
+          Bucket:     @objectParams.Bucket
+          Key:        @objectName
+          PartNumber: chunk.partNumber.toString()
+          UploadId:   @uploadId
+        , (err, data) =>
 
-      @client.uploadPart
-        Body:       chunk
-        Bucket:     @objectParams.Bucket
-        Key:        @objectName
-        PartNumber: currentPartNumber.toString()
-        UploadId:   @uploadId
-      , (err, data) =>
-        chunk.progress = false
-        chunk.finished = true
+          if not chunk.progress
+            callbackCalled = true
 
-        @uploadedParts[currentPartNumber] = data?.ETag
+          chunk.progress = false
+          chunk.finished = if err then false else true
 
-        if err then @emit 'error', err
-        @emit 'uploaded', etag: data?.ETag
+          if err
+            if not callbackCalled
+              next err
+            else
+              console.error 'This callback was already called, WTF; chunk', chunk
+            @emit 'error', err
+          else
+            @uploadedParts[chunk.partNumber] = data.ETag
 
-        next err
+            @emit 'uploaded', etag: data.ETag
+
+            return next()
 
     , (err) =>
-      if err then console.error 'Upload failed', err
+      if err
+        console.error 'Cannot upload chunks', err
       @pruneParts()
 
 
@@ -142,8 +150,13 @@ class Uploader extends EventEmitter
       if @parts.length is 0
         @finishJob()
       else
-        process.stdout.write('W') if @verbose
-        setTimeout (=> @pruneParts()), 500
+        setTimeout (=>
+          # for race condition about failed parts
+          if @parts.length > 0
+            @uploadChunks()
+          else
+            @pruneParts()
+        ), 500
 
 
   finishJob: ->
