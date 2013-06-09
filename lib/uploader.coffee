@@ -22,7 +22,7 @@ class Uploader extends EventEmitter
 
     if not @objectParams.Bucket then throw new Error "Bucket must be given"
 
-    @client = new aws.S3().client
+    @createNewClient()
 
     @initiated       = false
     @receivedAllData = false
@@ -39,6 +39,8 @@ class Uploader extends EventEmitter
     @handleStream stream
     process.nextTick => @initiateTransfer()
 
+  createNewClient: ->
+    @client = new aws.S3().client
 
   initiateTransfer: ->
     @client.createMultipartUpload @objectParams, (err, data) =>
@@ -114,7 +116,13 @@ class Uploader extends EventEmitter
 
           if err
             if not callbackCalled
-              next err
+              if err.code is 'RequestTimeout'
+                # create new client as old one died..and try again in next iteration
+                @createNewClient()
+                # do not propagate err as that whould kill rest of uploads
+                next null
+              else
+                next err
             else
               console.error 'This callback was already called, WTF; chunk', chunk
             @emit 'error', err
