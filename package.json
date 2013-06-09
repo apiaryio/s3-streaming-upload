@@ -1,7 +1,7 @@
 {
     "name": "s3-streaming-upload",
     "description": "Streaming upload to S3",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "author": "Apiary Ltd <team@apiary.io>",
     "contributors": [
         {
