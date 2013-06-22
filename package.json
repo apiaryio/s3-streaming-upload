@@ -13,18 +13,31 @@
         "async":   "",
         "aws-sdk": ""
     },
+    "devDependencies": {
+        "coffee-script":          "~1.6.3"
+    },
     "keywords": [
         "aws",
         "s3",
         "stream"
     ],
+    "scripts": {
+        "build":        "coffee --bare --compile --output lib/s3-streaming-upload src/s3-streaming-upload/*.coffee",
+        "prepublish":   "coffee --bare --compile --output lib/s3-streaming-upload src/s3-streaming-upload/*.coffee",
+    },
     "licenses": [
         {
           "type": "MIT",
           "url": "https://github.com/apiaryio/s3-streaming-upload/blob/master/README.md"
         }
     ],
-    "repository": "git://github.com/apiaryio/s3-streaming-upload",
+    "repository": {
+        "type": "git",
+        "url": "http://github.com/apiaryio/s3-streaming-upload"
+    },
+    "bugs": {
+        "url": "http://github.com/apiaryio/s3-streaming-upload/issues"
+    },
     "main": "index",
     "engines": {
         "node": "*"
