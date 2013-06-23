@@ -1,0 +1,5 @@
+src/
+.git*
+.idea
+.project
+
