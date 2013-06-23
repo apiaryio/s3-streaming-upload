@@ -41,7 +41,7 @@
     "bugs": {
         "url": "http://github.com/apiaryio/s3-streaming-upload/issues"
     },
-    "main": "lib/s3-streaming-upload",
+    "main": "lib/",
     "engines": {
         "node": "*"
     }
