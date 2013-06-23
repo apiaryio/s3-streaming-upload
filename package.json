@@ -25,8 +25,8 @@
         "stream"
     ],
     "scripts": {
-        "prepublish":   "coffee --bare --output lib/ --compile src/*.coffee",
-        "test":         "./node_modules/.bin/mocha --compilers \"coffee:coffee-script\""
+        "prepublish": "scripts/build",
+        "test":       "./node_modules/.bin/mocha --compilers \"coffee:coffee-script\""
     },
     "licenses": [
         {
