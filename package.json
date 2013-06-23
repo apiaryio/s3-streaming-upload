@@ -2,7 +2,7 @@
     "name": "s3-streaming-upload",
     "description": "Streaming upload to S3",
     "version": "0.1.1",
-    "author": "Apiary Ltd <team@apiary.io>",
+    "author": "Apiary Inc <support@apiary.io>",
     "contributors": [
         {
             "name": "Lukas Linhart",
@@ -31,7 +31,7 @@
     "licenses": [
         {
           "type": "MIT",
-          "url": "https://github.com/apiaryio/s3-streaming-upload/blob/master/README.md"
+          "url": "https://github.com/apiaryio/s3-streaming-upload/blob/master/LICENSE"
         }
     ],
     "repository": {
