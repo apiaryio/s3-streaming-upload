@@ -14,7 +14,10 @@
         "aws-sdk": ""
     },
     "devDependencies": {
-        "coffee-script":          "~1.6.3"
+        "coffee-script": "~1.6.3",
+        "chai": "",
+        "mocha": "",
+        "sinon": ""
     },
     "keywords": [
         "aws",
@@ -22,8 +25,8 @@
         "stream"
     ],
     "scripts": {
-        "build":        "coffee --bare --compile --output lib/s3-streaming-upload src/s3-streaming-upload/*.coffee",
-        "prepublish":   "coffee --bare --compile --output lib/s3-streaming-upload src/s3-streaming-upload/*.coffee",
+        "prepublish":   "coffee --bare --output lib/ --compile src/*.coffee",
+        "test":         "./node_modules/.bin/mocha --compilers \"coffee:coffee-script\""
     },
     "licenses": [
         {
@@ -38,7 +41,7 @@
     "bugs": {
         "url": "http://github.com/apiaryio/s3-streaming-upload/issues"
     },
-    "main": "index",
+    "main": "lib/s3-streaming-upload",
     "engines": {
         "node": "*"
     }
