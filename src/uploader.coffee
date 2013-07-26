@@ -65,7 +65,6 @@ class Uploader extends EventEmitter
         @flushPart()
 
     stream.on 'error', (err) -> @failed = true
-    stream.on 'close', -> console.error 'closed'
     stream.on 'end', =>
       @receivedAllData = true
       if @initiated
