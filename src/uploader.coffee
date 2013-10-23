@@ -147,6 +147,7 @@ class Uploader extends EventEmitter
     for el in @parts
       if el.finished
         finished.push i
+      i++
 
     finished.reverse()
 
