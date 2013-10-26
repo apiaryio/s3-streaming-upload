@@ -106,31 +106,24 @@ class Uploader extends EventEmitter
           PartNumber: chunk.partNumber.toString()
           UploadId:   @uploadId
         , (err, data) =>
-
-          if not chunk.progress
-            callbackCalled = true
-
           chunk.progress = false
           chunk.finished = if err then false else true
 
           if err
-            if not callbackCalled
-              if err.code is 'RequestTimeout'
-                # create new client as old one died..and try again in next iteration
-                @createNewClient()
-                # do not propagate err as that whould kill rest of uploads
-                next null
-              else
-                next err
+            if err.code is 'RequestTimeout'
+              # create new client as old one died..and try again in next iteration
+              @createNewClient()
+              # do not propagate err as that whould kill rest of uploads
+              return next null
             else
-              console.error 'This callback was already called, WTF; chunk', chunk
-            @emit 'error', err
+              @emit 'error', err
+              return next err
+
           else
             @uploadedParts[chunk.partNumber] = data.ETag
-
             @emit 'uploaded', etag: data.ETag
 
-            return next()
+          return next()
 
     , (err) =>
       if err
