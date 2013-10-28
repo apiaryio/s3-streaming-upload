@@ -29,8 +29,8 @@ describe 'Basic Events', ->
   before ->
     stream = new Stream()
 
-    sinon.stub Uploader.prototype, 'createNewClient', ->
-      @client = new FakeClient()
+    sinon.stub Uploader.prototype, 'getNewClient', ->
+      return new FakeClient()
 
     uploader = new Uploader
       accessKey: 'dummy'
@@ -38,13 +38,16 @@ describe 'Basic Events', ->
       stream:    stream
       bucket:    'fakeBucket'
 
+    uploader.initiated = true
+
   after ->
-    Uploader.prototype.createNewClient.restore()
+    Uploader.prototype.getNewClient.restore()
 
   describe 'When I write few small bytes and finish', ->
     data = null
 
     before (done) ->
+      this.timeout 6000
       uploader.on 'completed', (err, returnedData) ->
         data = returnedData
         done err
