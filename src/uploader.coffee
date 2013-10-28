@@ -92,7 +92,6 @@ class Uploader extends EventEmitter
         @finishJob()
       else
         # for race condition about failed parts
-        console.error @parts.length
         if @parts.length > 0
           @uploadChunks()
         else
@@ -134,6 +133,8 @@ class Uploader extends EventEmitter
 
         chunk.progress = true
         chunk.client ?= @getNewClient()
+
+        @emit 'uploading', chunk.partNumber
 
         chunk.client.uploadPart
           Body:       chunk
