@@ -22,10 +22,8 @@ class Uploader extends EventEmitter
 
     if not @objectParams.Bucket then throw new Error "Bucket must be given"
 
-    @createNewClient()
-
     @initiated       = false
-    @receivedAllData = false
+    @initializing    = false
     @failed          = false
     @partNumber      = 1
     @parts           = []
@@ -37,13 +35,21 @@ class Uploader extends EventEmitter
     @on 'error', (err) => @failed = true
 
     @handleStream stream
-    process.nextTick => @initiateTransfer()
+    #process.nextTick => @initiateTransfer()
 
-  createNewClient: ->
-    @client = new aws.S3().client
+    @uploadTimer = setInterval ()=>
+      #because of timeouts - otherwise every tick is "occupied" by stream operations
+      @uploadChunks()
+    , 5000
+
+  getNewClient: ->
+    new aws.S3().client
 
   initiateTransfer: ->
-    @client.createMultipartUpload @objectParams, (err, data) =>
+    @initializing = true
+    @getNewClient().createMultipartUpload @objectParams, (err, data) =>
+      @initializing = false
+
       if err
         @emit 'failed', new Error "Cannot initiate transfer"
         @emit 'error', err
@@ -58,7 +64,9 @@ class Uploader extends EventEmitter
 
   handleStream: (stream) ->
     stream.on 'data', (chunk) =>
-      if typeof(chunk) is 'string' then chunk = new Buffer chunk, 'utf-8'
+      if typeof(chunk) is 'string'
+        chunk = new Buffer chunk, 'utf-8'
+
       @currentChunk = Buffer.concat [@currentChunk, chunk]
 
       if @currentChunk.length > @partSize
@@ -66,30 +74,57 @@ class Uploader extends EventEmitter
 
     stream.on 'error', (err) -> @failed = true
     stream.on 'end', =>
-      @receivedAllData = true
       if @initiated
         @flushPart()
-        @pruneParts()
+        @finishUploads()
       else
+        @initiateTransfer()
         @once 'initiated', =>
           @flushPart()
-          @pruneParts()
+          @finishUploads()
 
+  finishUploads: ->
+    if @uploadTimer
+      clearInterval @uploadTimer
+
+    @pruneTimer = setInterval (=>
+      if @parts.length is 0
+        @finishJob()
+      else
+        # for race condition about failed parts
+        console.error @parts.length
+        if @parts.length > 0
+          @uploadChunks()
+        else
+          @pruneParts()
+      ), 5000
 
   flushPart: ->
     @parts.push @currentChunk
     @currentChunk = new Buffer 0
-
-    if @initiated
-      @uploadChunks()
-    else
-      @once 'initiated', =>
-        @uploadChunks()
+    @uploadChunks()
 
 
 
   uploadChunks: ->
-    async.forEach @parts, (chunk, next) =>
+    if not @initiated
+      if not @initializing
+        @initiateTransfer()
+
+      @once 'initiated', =>
+        @uploadChunks()
+      return
+
+    if not @parts?.length
+      return
+
+    partsToProcess = []
+
+    for chunk in @parts
+      if not (chunk.progress or chunk.finished)
+        partsToProcess.push chunk
+
+    async.forEach partsToProcess, (chunk, next) =>
       if chunk.progress or chunk.finished
         next()
       else
@@ -98,8 +133,9 @@ class Uploader extends EventEmitter
           @partNumber += 1
 
         chunk.progress = true
+        chunk.client ?= @getNewClient()
 
-        @client.uploadPart
+        chunk.client.uploadPart
           Body:       chunk
           Bucket:     @objectParams.Bucket
           Key:        @objectName
@@ -111,8 +147,8 @@ class Uploader extends EventEmitter
 
           if err
             if err.code is 'RequestTimeout'
-              # create new client as old one died..and try again in next iteration
-              @createNewClient()
+              # new client will be created in next run
+              chunk.client = undefined
               # do not propagate err as that whould kill rest of uploads
               return next null
             else
@@ -122,16 +158,12 @@ class Uploader extends EventEmitter
           else
             @uploadedParts[chunk.partNumber] = data.ETag
             @emit 'uploaded', etag: data.ETag
-
-          return next()
+            return next()
 
     , (err) =>
       if err
         console.error 'Cannot upload chunks', err
       @pruneParts()
-
-
-
 
   pruneParts: ->
     #TODO: AM time algorithm, do w/o recursion
@@ -147,24 +179,20 @@ class Uploader extends EventEmitter
     for i in finished
       @parts.splice i, 1
 
-    if @receivedAllData
-      if @parts.length is 0
-        @finishJob()
-      else
-        setTimeout (=>
-          # for race condition about failed parts
-          if @parts.length > 0
-            @uploadChunks()
-          else
-            @pruneParts()
-        ), 500
+
 
 
   finishJob: ->
-    if @finishInProgress then return
+    if @finishInProgress
+      return
+
+    if @pruneTimer
+      clearInterval @pruneTimer
+
     @finishInProgress = true
+
     @emit 'finishing'
-    @client.completeMultipartUpload
+    @getNewClient().completeMultipartUpload
       UploadId: @uploadId
       Bucket:   @objectParams.Bucket
       Key:      @objectParams.Key
