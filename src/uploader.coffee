@@ -146,10 +146,18 @@ class Uploader extends EventEmitter
           chunk.progress = false
           chunk.finished = if err then false else true
 
+          if chunk.callbackCalled
+            console.error 'This callback was already called, WTF; chunk', chunk
+            return
+
+          chunk.callbackCalled = true
+
           if err
             if err.code is 'RequestTimeout'
               # new client will be created in next run
               chunk.client = undefined
+
+              console.info "timeout for chunk no.: #{chunk.partNumber}"
               # do not propagate err as that whould kill rest of uploads
               return next null
             else
