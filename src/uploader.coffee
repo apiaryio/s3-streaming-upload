@@ -6,7 +6,7 @@ aws            = require 'aws-sdk'
 
 class Uploader extends EventEmitter
   #FIXME: 0 records?
-  constructor: ({accessKey, secretKey, region, stream, objectName, objectParams, bucket, partSize, maxBufferSize}, @cb) ->
+  constructor: ({accessKey, secretKey, region, stream, objectName, objectParams, bucket, partSize, maxBufferSize, waitForPartAattempts}, @cb) ->
     super()
     aws.config.update
       accessKeyId:     accessKey
@@ -19,6 +19,8 @@ class Uploader extends EventEmitter
     @objectParams.Key    ?= objectName
 
     @maxBufferSize = maxBufferSize # TODO
+
+    @waitForPartAattempts = waitForPartAattempts or 5
 
     if not @objectParams.Bucket then throw new Error "Bucket must be given"
 
@@ -200,21 +202,78 @@ class Uploader extends EventEmitter
 
     @finishInProgress = true
 
-    @emit 'finishing'
-    @getNewClient().completeMultipartUpload
-      UploadId: @uploadId
-      Bucket:   @objectParams.Bucket
-      Key:      @objectParams.Key
-      MultipartUpload: Parts: ({'ETag': etag, 'PartNumber': parseInt(partNumber, 10)} for partNumber, etag of @uploadedParts)
-    , (err, data) =>
-      @emit 'finished', data
-      if err
-        @emit 'error', err
-        @failed = true
+    checkPartsInterval = null
 
-      if @failed
-        return @emit 'failed', err
-      @emit 'completed', err, location: data.Location, bucket: data.Bucket, key: data.Key, etag: data.ETag, expiration: data.Expiration, versionId: data.VersionId
+    #to give amazon S3 some time to realize that "parts" has been uploaded
+    async.series [
+      (cb) =>
+        checkPartsCounter = 0
+        callbackCalled = false
+
+        checkPartsInterval = setInterval ( =>
+
+          checkPartsCounter++
+          checkPartsCounterInt = checkPartsCounter
+
+          @getNewClient().listParts
+            UploadId: @uploadId
+            Bucket:   @objectParams.Bucket
+            Key:      @objectParams.Key
+
+          ,(err, data) =>
+            parts = []
+            for part in data?['Parts'] or []
+              parts.push part.ETag
+
+            #shouldn't happens
+            if not parts.length
+              if not callbackCalled
+                callbackCalled = true
+                return cb()
+
+            hasAllParts = true
+
+            for partNumber, etag of @uploadedParts
+              if not (etag in parts)
+                hasAllParts = false
+                break
+
+            if hasAllParts
+              if not callbackCalled
+                callbackCalled = true
+                return cb()
+
+            if checkPartsCounterInt > @waitForPartAattempts
+              if not callbackCalled
+                callbackCalled = true
+                return cb new Error 'No all parts uploaded'
+
+        ), 2000
+      ], (err) =>
+
+        clearInterval checkPartsInterval
+
+        if err
+          #is it necessary to have both - err and failed ? (imho error should imply fail)
+          @emit 'error', err
+          return @emit 'failed', err
+
+        @emit 'finishing'
+
+        @getNewClient().completeMultipartUpload
+          UploadId: @uploadId
+          Bucket:   @objectParams.Bucket
+          Key:      @objectParams.Key
+          MultipartUpload: Parts: ({'ETag': etag, 'PartNumber': parseInt(partNumber, 10)} for partNumber, etag of @uploadedParts)
+        , (err, data) =>
+          @emit 'finished', data
+          if err
+            @emit 'error', err
+            @failed = true
+
+          if @failed
+            return @emit 'failed', err
+          @emit 'completed', err, location: data.Location, bucket: data.Bucket, key: data.Key, etag: data.ETag, expiration: data.Expiration, versionId: data.VersionId
 
 module.exports =
   Uploader: Uploader

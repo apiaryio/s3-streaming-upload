@@ -5,6 +5,8 @@ sinon      = require 'sinon'
 
 {Uploader} = require '../src/uploader'
 
+process.env.TEST_TIMEOUT ?= 20000
+
 class FakeClient
   createMultipartUpload: (options, cb) ->
     cb null,
@@ -21,6 +23,9 @@ class FakeClient
 
   uploadPart: (options, cb) ->
     cb null, ETag: 'fakeEtag'
+
+  listParts: (options, cb) ->
+    cb null, 'Parts': [{'ETag': 'fakeEtag'}]
 
 describe 'Basic Events', ->
   stream   = undefined
@@ -47,7 +52,8 @@ describe 'Basic Events', ->
     data = null
 
     before (done) ->
-      this.timeout 6000
+      this.timeout process.env.TEST_TIMEOUT
+
       uploader.on 'completed', (err, returnedData) ->
         data = returnedData
         done err
