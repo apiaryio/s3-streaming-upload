@@ -200,21 +200,28 @@ class Uploader extends EventEmitter
 
     @finishInProgress = true
 
-    @emit 'finishing'
-    @getNewClient().completeMultipartUpload
-      UploadId: @uploadId
-      Bucket:   @objectParams.Bucket
-      Key:      @objectParams.Key
-      MultipartUpload: Parts: ({'ETag': etag, 'PartNumber': parseInt(partNumber, 10)} for partNumber, etag of @uploadedParts)
-    , (err, data) =>
-      @emit 'finished', data
-      if err
-        @emit 'error', err
-        @failed = true
+    #to give amazon S3 some time to realize that "parts" has been uploaded
+    async.series [
+      (cb) ->
+        setTimeout ( ->
+          return cb()
+        ),5000
+      ], () =>
+        @emit 'finishing'
+        @getNewClient().completeMultipartUpload
+          UploadId: @uploadId
+          Bucket:   @objectParams.Bucket
+          Key:      @objectParams.Key
+          MultipartUpload: Parts: ({'ETag': etag, 'PartNumber': parseInt(partNumber, 10)} for partNumber, etag of @uploadedParts)
+        , (err, data) =>
+          @emit 'finished', data
+          if err
+            @emit 'error', err
+            @failed = true
 
-      if @failed
-        return @emit 'failed', err
-      @emit 'completed', err, location: data.Location, bucket: data.Bucket, key: data.Key, etag: data.ETag, expiration: data.Expiration, versionId: data.VersionId
+          if @failed
+            return @emit 'failed', err
+          @emit 'completed', err, location: data.Location, bucket: data.Bucket, key: data.Key, etag: data.ETag, expiration: data.Expiration, versionId: data.VersionId
 
 module.exports =
   Uploader: Uploader
