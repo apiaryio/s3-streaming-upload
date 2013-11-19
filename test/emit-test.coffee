@@ -47,7 +47,7 @@ describe 'Basic Events', ->
     data = null
 
     before (done) ->
-      this.timeout 6000
+      this.timeout 20000
       uploader.on 'completed', (err, returnedData) ->
         data = returnedData
         done err
