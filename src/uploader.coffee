@@ -6,7 +6,7 @@ aws            = require 'aws-sdk'
 
 class Uploader extends EventEmitter
   #FIXME: 0 records?
-  constructor: ({accessKey, secretKey, region, stream, objectName, objectParams, bucket, partSize, maxBufferSize, waitForPartAattempts}, @cb) ->
+  constructor: ({accessKey, secretKey, region, stream, objectName, objectParams, bucket, partSize, maxBufferSize, waitForPartAttempts, waitTime}, @cb) ->
     super()
     aws.config.update
       accessKeyId:     accessKey
@@ -20,7 +20,8 @@ class Uploader extends EventEmitter
 
     @maxBufferSize = maxBufferSize # TODO
 
-    @waitForPartAattempts = waitForPartAattempts or 5
+    @waitTime            = waitTime or 2000
+    @waitForPartAttempts = waitForPartAttempts or 5
 
     if not @objectParams.Bucket then throw new Error "Bucket must be given"
 
@@ -221,44 +222,44 @@ class Uploader extends EventEmitter
             Key:      @objectParams.Key
 
           ,(err, data) =>
+            if err
+              return cb err
+
             parts = []
             for part in data?['Parts'] or []
               parts.push part.ETag
 
-            #shouldn't happens
-            if not parts.length
-              if not callbackCalled
-                callbackCalled = true
-                return cb()
-
             hasAllParts = true
 
+            #shouldn't happen
+            if not parts.length
+              hasAllParts = false
+
+            notUploaded = []
             for partNumber, etag of @uploadedParts
               if not (etag in parts)
                 hasAllParts = false
-                break
+                notUploaded.push partNumber: partNumber, etag: etag
 
             if hasAllParts
               if not callbackCalled
                 callbackCalled = true
                 return cb()
 
-            if checkPartsCounterInt > @waitForPartAattempts
+            if checkPartsCounterInt > @waitForPartAttempts
               if not callbackCalled
                 callbackCalled = true
-                return cb new Error 'No all parts uploaded'
+                return cb new Error "Not all parts uploaded. Uploaded: #{JSON.stringify @uploadedParts}, Reported by listParts as uploaded: #{JSON.stringify data?['Parts']}"
 
-        ), 2000
+        ), @waitTime
       ], (err) =>
 
         clearInterval checkPartsInterval
 
-        if err
-          #is it necessary to have both - err and failed ? (imho error should imply fail)
-          @emit 'error', err
-          return @emit 'failed', err
-
         @emit 'finishing'
+
+        if err
+          return @emit 'failed', err
 
         @getNewClient().completeMultipartUpload
           UploadId: @uploadId
