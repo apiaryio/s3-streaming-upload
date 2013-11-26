@@ -249,8 +249,8 @@ class Uploader extends EventEmitter
             if checkPartsCounterInt > @waitForPartAttempts
               if not callbackCalled
                 callbackCalled = true
-                return cb new Error "Not all parts uploaded. Uploaded: #{JSON.stringify @uploadedParts}, Reported by listParts as uploaded: #{JSON.stringify data?['Parts']}"
-
+                console.warn "Not all parts uploaded. Uploaded: #{JSON.stringify @uploadedParts}, Reported by listParts as uploaded: #{JSON.stringify data?['Parts']} after #{@waitForPartAttempts} atempts"
+                return cb()
         ), @waitTime
       ], (err) =>
 
