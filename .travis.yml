@@ -13,3 +13,8 @@ notifications:
     channels: "irc.freenode.org#apiary"
     on_success: always
     on_failure: always
+
+cache:
+  directories:
+    - node_modules
+
