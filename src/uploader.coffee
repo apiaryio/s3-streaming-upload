@@ -6,7 +6,7 @@ aws            = require 'aws-sdk'
 
 class Uploader extends EventEmitter
   #FIXME: 0 records?
-  constructor: ({accessKey, secretKey, region, stream, objectName, objectParams, bucket, partSize, maxBufferSize, waitForPartAttempts, waitTime}, @cb) ->
+  constructor: ({accessKey, secretKey, region, stream, objectName, objectParams, bucket, partSize, maxBufferSize, partRetries, waitForPartAttempts, waitTime}, @cb) ->
     super()
     aws.config.update
       accessKeyId:     accessKey
@@ -18,7 +18,9 @@ class Uploader extends EventEmitter
     @objectParams.Bucket ?= bucket
     @objectParams.Key    ?= objectName
 
-    @maxBufferSize = maxBufferSize # TODO
+    @maxBufferSize = maxBufferSize
+    
+    @partRetries = partRetries or 5
 
     @waitTime            = waitTime or 2000
     @waitForPartAttempts = waitForPartAttempts or 5
@@ -40,10 +42,10 @@ class Uploader extends EventEmitter
     @handleStream stream
     #process.nextTick => @initiateTransfer()
 
-    @uploadTimer = setInterval ()=>
+    #@uploadTimer = setInterval ()=>
       #because of timeouts - otherwise every tick is "occupied" by stream operations
-      @uploadChunks()
-    , 5000
+      #@uploadChunks()
+    #, 5000
 
   getNewClient: ->
     new aws.S3().client
@@ -74,7 +76,7 @@ class Uploader extends EventEmitter
 
       if @currentChunk.length > @partSize
         @flushPart()
-
+        
     stream.on 'error', (err) -> @failed = true
     stream.on 'end', =>
       if @initiated
@@ -90,23 +92,23 @@ class Uploader extends EventEmitter
     if @uploadTimer
       clearInterval @uploadTimer
 
-    @pruneTimer = setInterval (=>
-      if @parts.length is 0
-        @finishJob()
-      else
-        # for race condition about failed parts
-        if @parts.length > 0
-          @uploadChunks()
-        else
-          @pruneParts()
-      ), 5000
+    #@pruneTimer = setInterval (=>
+      #if @parts.length is 0
+        #@finishJob()
+      #else
+         #for race condition about failed parts
+        #if @parts.length > 0
+          #@uploadChunks()
+        #else
+          #@pruneParts()
+      #), 5000
 
   flushPart: ->
     @parts.push @currentChunk
     @currentChunk = new Buffer 0
     @uploadChunks()
 
-
+  
 
   uploadChunks: ->
     if not @initiated
@@ -125,16 +127,9 @@ class Uploader extends EventEmitter
     for chunk in @parts
       if not (chunk.progress or chunk.finished)
         partsToProcess.push chunk
-
-    async.forEach partsToProcess, (chunk, next) =>
-      if chunk.progress or chunk.finished
-        next()
-      else
-        if not chunk.partNumber
-          chunk.partNumber = @partNumber
-          @partNumber += 1
-
-        chunk.progress = true
+    
+    uploadChunkToS3 (chunk, next) =>
+      chunk.progress = true
         chunk.client ?= @getNewClient()
 
         @emit 'uploading', chunk.partNumber
@@ -146,6 +141,7 @@ class Uploader extends EventEmitter
           PartNumber: chunk.partNumber.toString()
           UploadId:   @uploadId
         , (err, data) =>
+          chunk.retries = 1
           chunk.progress = false
           chunk.finished = if err then false else true
 
@@ -160,9 +156,14 @@ class Uploader extends EventEmitter
               # new client will be created in next run
               chunk.client = undefined
 
-              console.info "timeout for chunk no.: #{chunk.partNumber}"
+              console.info "Timeout! retrying #{chunk.retries} chunk no.: #{chunk.partNumber}"
               # do not propagate err as that whould kill rest of uploads
-              return next null
+              chunk.retries++
+              if chunk.retries <= partRetries
+                return uploadChunkToS3(chunk, next)
+              else
+                return next err
+              
             else
               @emit 'error', err
               return next err
@@ -171,7 +172,8 @@ class Uploader extends EventEmitter
             @uploadedParts[chunk.partNumber] = data.ETag
             @emit 'uploaded', etag: data.ETag
             return next()
-
+            
+    async.forEach partsToProcess, uploadChunkToS3
     , (err) =>
       if err
         console.error 'Cannot upload chunks', err
