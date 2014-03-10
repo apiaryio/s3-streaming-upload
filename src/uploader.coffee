@@ -128,7 +128,7 @@ class Uploader extends EventEmitter
       if not (chunk.progress or chunk.finished)
         partsToProcess.push chunk
     
-    uploadChunkToS3 (chunk, next) =>
+    uploadChunkToS3  = (chunk, next) ->
       chunk.progress = true
         chunk.client ?= @getNewClient()
 
