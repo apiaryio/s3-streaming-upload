@@ -22,7 +22,19 @@
   "keywords": [
     "aws",
     "s3",
-    "stream"
+    "stream",
+    "aws stream",
+    "aws s3 stream",
+    "aws s3",
+    "aws s3 streaming",
+    "aws s3 streaming upload",
+    "aws-sdk s3 streaming upload",
+    "aws s3 upload",
+    "s3 upload",
+    "s3 stream upload",
+    "s3 streaming",
+    "streaming upload",
+    "s3 streaming upload"
   ],
   "scripts": {
     "prepublish": "scripts/build",
