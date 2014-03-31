@@ -6,7 +6,7 @@ fs         = require 'fs'
 process.env.TEST_TIMEOUT ?= 300000
 
 
-describe 'Small file upload @integration test', ->
+describe 'Small file in parts upload @integration test', ->
   stream   = undefined
   uploader = undefined
 
@@ -20,11 +20,12 @@ describe 'Small file upload @integration test', ->
       stream:    stream
     done()
 
-  describe ' and When I write file and finish', ->
+  describe ' and set partSize to 6 and when I write file and finish', ->
     data = null
 
     before (done) ->
       @timeout process.env.TEST_TIMEOUT
+      uploader.partSize = 6
 
       uploader.on 'completed', (err, returnedData) ->
         data = returnedData
