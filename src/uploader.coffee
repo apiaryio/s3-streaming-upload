@@ -49,20 +49,21 @@ class Uploader extends EventEmitter
     new aws.S3().client
 
   initiateTransfer: ->
-    @initializing = true
-    @getNewClient().createMultipartUpload @objectParams, (err, data) =>
-      @initializing = false
+    if @initializing is false
+      @initializing = true
+      @getNewClient().createMultipartUpload @objectParams, (err, data) =>
+        @initializing = false
 
-      if err
-        @emit 'failed', new Error "Cannot initiate transfer"
-        @emit 'error', err
-        return @cb? err
+        if err
+          @emit 'failed', new Error "Cannot initiate transfer"
+          @emit 'error', err
+          return @cb? err
 
 
-      @uploadId  = data.UploadId
-      @initiated = true
+        @uploadId  = data.UploadId
+        @initiated = true
 
-      @emit 'initiated', @uploadId
+        @emit 'initiated', @uploadId
 
 
   handleStream: (stream) ->

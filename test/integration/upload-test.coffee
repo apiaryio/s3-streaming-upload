@@ -1,30 +1,27 @@
 {assert}   = require 'chai'
-{Stream}   = require 'stream'
-fs         = require 'fs'
+streamers  = require 'streamers'
 {Uploader} = require '../../src/uploader'
 
-process.env.TEST_TIMEOUT ?= 300000
-
-
 describe 'Small file upload @integration test', ->
-  stream   = undefined
-  uploader = undefined
+  source = undefined
+  uploader  = undefined
 
   before (done) ->
-    stream = fs.createReadStream "#{__dirname}/../fixtures/small-file.txt"
+    source = new streamers.BufferReadStream "first\nsecond\nthird\n"
+
     uploader = new Uploader
       accessKey: process.env.AWS_S3_ACCESS_KEY
       secretKey: process.env.AWS_S3_SECRET_KEY
       bucket:    process.env.AWS_S3_TEST_BUCKET
       objectName: "testfile" + new Date().getTime()
-      stream:    stream
+      stream: source
     done()
 
-  describe ' and When I write file and finish', ->
+  describe ' and When I write a file and finish', ->
     data = null
 
     before (done) ->
-      @timeout process.env.TEST_TIMEOUT
+      @timeout parseInt process.env.TEST_TIMEOUT, 10 or 300000
 
       uploader.on 'completed', (err, returnedData) ->
         data = returnedData
