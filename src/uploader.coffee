@@ -273,6 +273,10 @@ class Uploader extends EventEmitter
             @failed = true
 
           if @failed
+            @getNewClient().abortMultipartUpload
+              UploadId: @uploadId
+              Bucket:   @objectParams.Bucket
+              Key:      @objectParams.Key
             return @emit 'failed', err
           @emit 'completed', err, location: data.Location, bucket: data.Bucket, key: data.Key, etag: data.ETag, expiration: data.Expiration, versionId: data.VersionId
 
