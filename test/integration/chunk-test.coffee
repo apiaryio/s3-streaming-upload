@@ -31,5 +31,8 @@ describe 'Small file in parts upload @integration test', ->
         data = returnedData
         done err
 
+      uploader.on 'failed', (err) ->
+        done err
+
     it 'I have received ETag', ->
       assert.equal data.etag.length, 36
