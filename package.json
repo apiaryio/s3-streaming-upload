@@ -17,7 +17,8 @@
     "coffee-script": "~1.6.3",
     "chai": "",
     "mocha": "",
-    "sinon": ""
+    "sinon": "",
+    "streamers": ""
   },
   "keywords": [
     "aws",

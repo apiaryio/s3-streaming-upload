@@ -49,20 +49,21 @@ class Uploader extends EventEmitter
     new aws.S3().client
 
   initiateTransfer: ->
-    @initializing = true
-    @getNewClient().createMultipartUpload @objectParams, (err, data) =>
-      @initializing = false
+    if @initializing is false
+      @initializing = true
+      @getNewClient().createMultipartUpload @objectParams, (err, data) =>
+        @initializing = false
 
-      if err
-        @emit 'failed', new Error "Cannot initiate transfer"
-        @emit 'error', err
-        return @cb? err
+        if err
+          @emit 'failed', new Error "Cannot initiate transfer"
+          @emit 'error', err
+          return @cb? err
 
 
-      @uploadId  = data.UploadId
-      @initiated = true
+        @uploadId  = data.UploadId
+        @initiated = true
 
-      @emit 'initiated', @uploadId
+        @emit 'initiated', @uploadId
 
 
   handleStream: (stream) ->
@@ -249,8 +250,7 @@ class Uploader extends EventEmitter
             if checkPartsCounterInt > @waitForPartAttempts
               if not callbackCalled
                 callbackCalled = true
-                console.warn "Not all parts uploaded. Uploaded: #{JSON.stringify @uploadedParts}, Reported by listParts as uploaded: #{JSON.stringify data?['Parts']} after #{@waitForPartAttempts} atempts"
-                return cb()
+                return cb new Error "Not all parts uploaded. Uploaded: #{JSON.stringify @uploadedParts}, Reported by listParts as uploaded: #{JSON.stringify data?['Parts']} after #{@waitForPartAttempts} atempts"
         ), @waitTime
       ], (err) =>
 
@@ -273,6 +273,10 @@ class Uploader extends EventEmitter
             @failed = true
 
           if @failed
+            @getNewClient().abortMultipartUpload
+              UploadId: @uploadId
+              Bucket:   @objectParams.Bucket
+              Key:      @objectParams.Key
             return @emit 'failed', err
           @emit 'completed', err, location: data.Location, bucket: data.Bucket, key: data.Key, etag: data.ETag, expiration: data.Expiration, versionId: data.VersionId
 
