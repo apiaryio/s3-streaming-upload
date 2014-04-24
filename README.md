@@ -43,3 +43,22 @@ upload.on('failed', function (err) {
     console.log('upload failed with error', err);
 });
 ````
+
+### Setting up ACL
+
+Pass it in `objectParams` to the `Uploader`:
+
+```javascript
+
+upload = new Uploader({
+  // credentials to access AWS
+  accessKey:  process.env.AWS_API_KEY,
+  secretKey:  process.env.AWS_SECRET,
+  bucket:     process.env.AWS_S3_TRAFFIC_BACKUP_BUCKET,
+  objectName: "myUploadedFile",
+  stream:     stream,
+  objectParams: {
+    ACL: 'public-read'
+  }
+});
+```
