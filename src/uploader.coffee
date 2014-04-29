@@ -143,7 +143,7 @@ class Uploader extends EventEmitter
         chunk.client.uploadPart
           Body:       chunk
           Bucket:     @objectParams.Bucket
-          Key:        @objectName
+          Key:        @objectParams.Key
           PartNumber: chunk.partNumber.toString()
           UploadId:   @uploadId
         , (err, data) =>
