@@ -46,7 +46,7 @@ class Uploader extends EventEmitter
     , 5000
 
   getNewClient: ->
-    new aws.S3().client
+    new aws.S3()
 
   initiateTransfer: ->
     if @initializing is false

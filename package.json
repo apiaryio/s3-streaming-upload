@@ -11,7 +11,7 @@
   ],
   "dependencies": {
     "async": "",
-    "aws-sdk": "~1.17.3"
+    "aws-sdk": "~2.0.17"
   },
   "devDependencies": {
     "coffee-script": "~1.6.3",
