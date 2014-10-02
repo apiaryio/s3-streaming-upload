@@ -46,7 +46,7 @@ class Uploader extends EventEmitter
     , 5000
 
   getNewClient: ->
-    new aws.S3().client
+    new aws.S3()
 
   initiateTransfer: ->
     if @initializing is false
@@ -254,31 +254,31 @@ class Uploader extends EventEmitter
         ), @waitTime
       ], (err) =>
 
-        clearInterval checkPartsInterval
+      clearInterval checkPartsInterval
 
-        @emit 'finishing'
+      @emit 'finishing'
 
+      if err
+        return @emit 'failed', err
+
+      @getNewClient().completeMultipartUpload
+        UploadId: @uploadId
+        Bucket:   @objectParams.Bucket
+        Key:      @objectParams.Key
+        MultipartUpload: Parts: ({'ETag': etag, 'PartNumber': parseInt(partNumber, 10)} for partNumber, etag of @uploadedParts)
+      , (err, data) =>
+        @emit 'finished', data
         if err
+          @emit 'error', err
+          @failed = true
+
+        if @failed
+          @getNewClient().abortMultipartUpload
+            UploadId: @uploadId
+            Bucket:   @objectParams.Bucket
+            Key:      @objectParams.Key
           return @emit 'failed', err
-
-        @getNewClient().completeMultipartUpload
-          UploadId: @uploadId
-          Bucket:   @objectParams.Bucket
-          Key:      @objectParams.Key
-          MultipartUpload: Parts: ({'ETag': etag, 'PartNumber': parseInt(partNumber, 10)} for partNumber, etag of @uploadedParts)
-        , (err, data) =>
-          @emit 'finished', data
-          if err
-            @emit 'error', err
-            @failed = true
-
-          if @failed
-            @getNewClient().abortMultipartUpload
-              UploadId: @uploadId
-              Bucket:   @objectParams.Bucket
-              Key:      @objectParams.Key
-            return @emit 'failed', err
-          @emit 'completed', err, location: data.Location, bucket: data.Bucket, key: data.Key, etag: data.ETag, expiration: data.Expiration, versionId: data.VersionId
+        @emit 'completed', err, location: data.Location, bucket: data.Bucket, key: data.Key, etag: data.ETag, expiration: data.Expiration, versionId: data.VersionId
 
 module.exports =
   Uploader: Uploader
