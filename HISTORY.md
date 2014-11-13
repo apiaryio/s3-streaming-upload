@@ -1,5 +1,8 @@
 # History
 
+## V 0.1.14 (November 14, 2014)
+* Wrapping stream into readable-stream for compatibility with node v0.10 streams2 api
+
 ## V 0.1.12 (April 5, 2014)
 * Fix [issue #14](https://github.com/apiaryio/s3-streaming-upload/issues/14)
 * Add abortMultipartUpload if upload failed.

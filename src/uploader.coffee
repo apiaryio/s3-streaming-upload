@@ -3,6 +3,8 @@
 async          = require 'async'
 aws            = require 'aws-sdk'
 
+{Readable} = require 'readable-stream'
+
 
 class Uploader extends EventEmitter
   #FIXME: 0 records?
@@ -67,7 +69,9 @@ class Uploader extends EventEmitter
 
 
   handleStream: (stream) ->
-    stream.on 'data', (chunk) =>
+    readable = new Readable
+    readable.wrap stream
+    readable.on 'data', (chunk) =>
       if typeof(chunk) is 'string'
         chunk = new Buffer chunk, 'utf-8'
 
@@ -76,8 +80,8 @@ class Uploader extends EventEmitter
       if @currentChunk.length > @partSize
         @flushPart()
 
-    stream.on 'error', (err) -> @failed = true
-    stream.on 'end', =>
+    readable.on 'error', (err) -> @failed = true
+    readable.on 'end', =>
       if @initiated
         @flushPart()
         @finishUploads()
@@ -86,6 +90,8 @@ class Uploader extends EventEmitter
         @once 'initiated', =>
           @flushPart()
           @finishUploads()
+
+    readable.resume()
 
   finishUploads: ->
     if @uploadTimer
