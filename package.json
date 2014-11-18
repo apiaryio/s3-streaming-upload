@@ -1,7 +1,7 @@
 {
   "name": "s3-streaming-upload",
   "description": "Streaming upload to S3",
-  "version": "0.1.15",
+  "version": "0.1.16",
   "author": "Apiary Inc <support@apiary.io>",
   "contributors": [
     {
@@ -11,7 +11,8 @@
   ],
   "dependencies": {
     "async": "",
-    "aws-sdk": "~2.0.17"
+    "aws-sdk": "~2.0.17",
+    "readable-stream": "~1.0.33"
   },
   "devDependencies": {
     "coffee-script": "~1.6.3",
