@@ -11,7 +11,7 @@
   ],
   "dependencies": {
     "async": "",
-    "aws-sdk": "~2.0.17",
+    "aws-sdk": "~2.1.7",
     "readable-stream": "~1.0.33"
   },
   "devDependencies": {
