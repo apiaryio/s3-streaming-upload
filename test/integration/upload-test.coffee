@@ -1,5 +1,4 @@
 {assert}   = require 'chai'
-streamers  = require 'streamers'
 {Uploader} = require '../../src/uploader'
 
 describe 'Small file upload @integration test', ->
@@ -7,7 +6,7 @@ describe 'Small file upload @integration test', ->
   uploader  = undefined
 
   before (done) ->
-    source = new streamers.BufferReadStream "first\nsecond\nthird\n"
+    source = new Buffer "first\nsecond\nthird\n"
 
     uploader = new Uploader
       accessKey: process.env.AWS_S3_ACCESS_KEY
@@ -23,9 +22,9 @@ describe 'Small file upload @integration test', ->
     before (done) ->
       @timeout parseInt process.env.TEST_TIMEOUT, 10 or 300000
 
-      uploader.on 'completed', (err, returnedData) ->
+      uploader.send (err, returnedData) ->
         data = returnedData
         done err
 
     it 'I have received ETag', ->
-      assert.equal data.etag.length, 36
+      assert.equal data.ETag.length, 34
