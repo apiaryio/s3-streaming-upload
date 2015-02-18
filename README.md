@@ -1,4 +1,4 @@
-## s3-streaming-upload [![Build Status](https://travis-ci.org/apiaryio/s3-streaming-upload.png?branch=master)](https://travis-ci.org/apiaryio/s3-streaming-upload)
+## s3-streaming-upload [![Build Status](https://travis-ci.org/apiaryio/s3-streaming-upload.png?branch=master)](https://travis-ci.org/apiaryio/s3-streaming-upload) [![Gitter chat](https://badges.gitter.im/apiaryio/s3-streaming-upload.png)](https://gitter.im/apiaryio/s3-streaming-upload)
 
 [s3-streaming-upload](https://github.com/apiaryio/s3-streaming-upload) is [node.js](http://nodejs.org) library that listens to your [stream](http://nodejs.org/docs/v0.8.9/api/stream.html) and upload its data to Amazon S3 using [MultiPartUpload API](http://docs.amazonwebservices.com/AmazonS3/latest/dev/sdksupportformpu.html).
 
