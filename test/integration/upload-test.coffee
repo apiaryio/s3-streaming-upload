@@ -14,6 +14,7 @@ describe 'Small file upload @integration test', ->
       bucket:    process.env.AWS_S3_TEST_BUCKET
       objectName: "testfile" + new Date().getTime()
       stream: source
+      debug: true
     done()
 
   describe ' and When I write a file and finish', ->

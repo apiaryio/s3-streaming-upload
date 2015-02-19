@@ -1,8 +1,15 @@
 ## s3-streaming-upload [![Build Status](https://travis-ci.org/apiaryio/s3-streaming-upload.png?branch=master)](https://travis-ci.org/apiaryio/s3-streaming-upload) [![Gitter chat](https://badges.gitter.im/apiaryio/s3-streaming-upload.png)](https://gitter.im/apiaryio/s3-streaming-upload)
 
-[s3-streaming-upload](https://github.com/apiaryio/s3-streaming-upload) is [node.js](http://nodejs.org) library that listens to your [stream](http://nodejs.org/docs/v0.8.9/api/stream.html) and upload its data to Amazon S3 using [MultiPartUpload API](http://docs.amazonwebservices.com/AmazonS3/latest/dev/sdksupportformpu.html).
+[s3-streaming-upload](https://github.com/apiaryio/s3-streaming-upload) is [node.js](http://nodejs.org) library that listens to your [stream](http://nodejs.org/docs/v0.8.9/api/stream.html) and upload its data to Amazon S3.
 
 It is heavily inspired by [knox-mpu](https://github.com/nathanoehlman/knox-mpu), but unlike it, it does not buffer data to disk and is build on top of [official AWS SDK](https://github.com/aws/aws-sdk-js) instead of knox.
+
+### Changes
+
+- Version 0.2.x  using [ManagedUpload API](http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3/ManagedUpload.html).
+
+- Version 0.1.x  using [MultiPartUpload API](http://docs.amazonwebservices.com/AmazonS3/latest/dev/sdksupportformpu.html).
+
 
 ### Installation
 
@@ -28,19 +35,18 @@ var Uploader = require('s3-streaming-upload').Uploader,
 
 upload = new Uploader({
   // credentials to access AWS
-  accessKey:  process.env.AWS_API_KEY,
-  secretKey:  process.env.AWS_SECRET,
-  bucket:     process.env.AWS_S3_TRAFFIC_BACKUP_BUCKET,
+  accessKey:  process.env.AWS_S3_ACCESS_KEY,
+  secretKey:  process.env.AWS_S3_SECRET_KEY,
+  bucket:     process.env.AWS_S3_TEST_BUCKET,
   objectName: "myUploadedFile",
-  stream:     stream
+  stream:     stream,
+  debug:      true
 });
 
-upload.on('completed', function (err, res) {
-    console.log('upload completed');
-});
-
-upload.on('failed', function (err) {
-    console.log('upload failed with error', err);
+upload.send(function (err) {
+  if (err) {
+    console.error('Upload error' + err);
+  }
 });
 ````
 

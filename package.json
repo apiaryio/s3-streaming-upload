@@ -1,7 +1,7 @@
 {
   "name": "s3-streaming-upload",
   "description": "Streaming upload to S3",
-  "version": "0.1.17",
+  "version": "0.2.0",
   "author": "Apiary Inc <support@apiary.io>",
   "contributors": [
     {
@@ -19,7 +19,12 @@
     "chai": "",
     "mocha": "",
     "sinon": "",
-    "streamers": ""
+    "streamers": "",
+    "gulp": "",
+    "gulp-coffeelint": "",
+    "gulp-mocha": "",
+    "gulp-watch": "",
+    "yargs": ""
   },
   "keywords": [
     "aws",
