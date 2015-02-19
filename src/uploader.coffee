@@ -5,7 +5,7 @@ aws            = require 'aws-sdk'
 
 class Uploader extends EventEmitter
   # Constructor
-  constructor: ({accessKey, secretKey, region, stream, objectName, objectParams, bucket, partSize, maxBufferSize, waitForPartAttempts, waitTime}, @cb) ->
+  constructor: ({accessKey, secretKey, region, stream, objectName, objectParams, bucket, partSize, maxBufferSize, waitForPartAttempts, waitTime, debug}, @cb) ->
     super()
     aws.config.update
       accessKeyId:     accessKey
@@ -18,17 +18,17 @@ class Uploader extends EventEmitter
     @objectParams.Key    ?= objectName
     @objectParams.Body   ?= stream
     @timeout              = 300000
+    @debug                = debug or false
 
     if not @objectParams.Bucket then throw new Error "Bucket must be given"
 
-    # console.log @objectParams
     @upload = new aws.S3.ManagedUpload { partSize: 10 * 1024 * 1024, queueSize: 1, params: @objectParams }
     @upload.minPartSize = 1024 * 1024 * 5
     @upload.queueSize   = 4
-
-    @upload.on 'httpUploadProgress', (progress) ->
-      console.log "#{progress.loaded} / #{progress.total}"
-
+    # Progress event
+    @upload.on 'httpUploadProgress', (progress) =>
+      console.log "#{progress.loaded} / #{progress.total}" if @debug
+  # Send steam
   send: (callback) ->
     @upload.send (err, data) ->
       if err then console.log err, data
