@@ -7,6 +7,10 @@
     {
       "name": "Lukas Linhart",
       "email": "lukas@apiary.io"
+    },
+    {
+      "name": "Ladislav Prskavec",
+      "email": "ladislav@apiary.io"
     }
   ],
   "dependencies": {
