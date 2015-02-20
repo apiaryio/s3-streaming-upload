@@ -6,9 +6,9 @@ It is heavily inspired by [knox-mpu](https://github.com/nathanoehlman/knox-mpu),
 
 ### Changes
 
-- Version 0.2.x  using [ManagedUpload API](http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3/ManagedUpload.html).
+- Version 0.2.x  using [ManagedUpload API](http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3/ManagedUpload.html). NodeJS 0.10 and 0.12 supported.
 
-- Version 0.1.x  using [MultiPartUpload API](http://docs.amazonwebservices.com/AmazonS3/latest/dev/sdksupportformpu.html).
+- Version 0.1.x  using [MultiPartUpload API](http://docs.amazonwebservices.com/AmazonS3/latest/dev/sdksupportformpu.html). NodeJS 0.8 and 0.10 supported.
 
 
 ### Installation
