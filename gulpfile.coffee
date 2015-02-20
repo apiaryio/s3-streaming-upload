@@ -1,6 +1,7 @@
 gulp = require 'gulp'
 coffeelint = require 'gulp-coffeelint'
 mocha = require 'gulp-mocha'
+istanbul = require 'gulp-coffee-istanbul'
 watch = require 'gulp-watch'
 yargs = require 'yargs'
 
@@ -25,6 +26,17 @@ gulp.task 'forgiving-unit-test', ->
       @emit 'end'
 
 
+gulp.task 'coverage', ->
+  gulp.src('./src/*.coffee')
+    .pipe(istanbul({includeUntested: true}))
+    .pipe(istanbul.hookRequire())
+    .on('error', -> handleError)
+    .on 'finish', ->
+      gulp.src('test/integration/*-test.*')
+        .pipe(mocha(reporter: 'spec', grep: yargs.argv.grep))
+        .pipe(istanbul.writeReports())
+        .once 'end', -> process.exit 0
+
 gulp.task 'integration-test', ->
   gulp.src('test/integration/*-test.*')
     .pipe(mocha(reporter: 'spec', grep: yargs.argv.grep))
@@ -33,7 +45,7 @@ gulp.task 'integration-test', ->
 
 
 gulp.task 'lint', ->
-  gulp.src(['./*.coffee', './lib/*', './test/**/*'])
+  gulp.src(['./*.coffee', './src/*', './test/**/*'])
     .pipe(coffeelint(opt: {max_line_length: {value: 1024, level: 'ignore'}}))
     .pipe(coffeelint.reporter())
     .pipe(coffeelint.reporter('fail'))
@@ -41,7 +53,7 @@ gulp.task 'lint', ->
 
 
 gulp.task 'forgiving-lint', ->
-  gulp.src(['./*.coffee', './lib/*', './test/**/*'])
+  gulp.src(['./*.coffee', './src/*', './test/**/*'])
     .pipe(coffeelint(opt: {max_line_length: {value: 1024, level: 'ignore'}}))
     .pipe(coffeelint.reporter())
     .on 'error', ->

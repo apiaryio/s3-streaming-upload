@@ -19,15 +19,16 @@
     "readable-stream": "~1.0.33"
   },
   "devDependencies": {
-    "coffee-script": "~1.6.3",
     "chai": "",
+    "coffee-script": "~1.6.3",
+    "gulp": "",
+    "gulp-coffeelint": "",
+    "gulp-coffee-istanbul": "",
+    "gulp-mocha": "",
+    "gulp-watch": "",
     "mocha": "",
     "sinon": "",
     "streamers": "",
-    "gulp": "",
-    "gulp-coffeelint": "",
-    "gulp-mocha": "",
-    "gulp-watch": "",
     "yargs": ""
   },
   "keywords": [
