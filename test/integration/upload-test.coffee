@@ -6,7 +6,7 @@ describe 'Small file upload @integration test', ->
   uploader  = undefined
 
   before (done) ->
-    source = new Buffer "first\nsecond\nthird\n"
+    source = new Buffer "key;value\ntest;1\nexample;2\n"
 
     uploader = new Uploader
       accessKey: process.env.AWS_S3_ACCESS_KEY
@@ -14,6 +14,8 @@ describe 'Small file upload @integration test', ->
       bucket:    process.env.AWS_S3_TEST_BUCKET
       objectName: "testfile" + new Date().getTime()
       stream: source
+      objectParams:
+        ContentType: 'text/csv'
       debug: true
     done()
 
