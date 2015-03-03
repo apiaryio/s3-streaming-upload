@@ -50,7 +50,6 @@
   ],
   "scripts": {
     "prepublish": "scripts/build",
-    "postinstall": "scripts/build",
     "test": "./node_modules/.bin/mocha --compilers \"coffee:coffee-script\""
   },
   "licenses": [
