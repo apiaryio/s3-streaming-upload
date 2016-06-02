@@ -7,11 +7,15 @@ class Uploader extends EventEmitter
   # Constructor
   constructor: ({accessKey, secretKey, sessionToken, region, stream, objectName, objectParams, bucket, partSize, maxBufferSize, waitForPartAttempts, waitTime, debug}, @cb) ->
     super()
-    aws.config.update
-      accessKeyId:     accessKey
-      secretAccessKey: secretKey
-      sessionToken:    sessionToken
-      region:          region if region
+
+    if accessKey?
+      aws.config.update
+        accessKeyId:     accessKey
+        secretAccessKey: secretKey
+        sessionToken:    sessionToken
+
+    if region?
+      region:            region
 
     @objectName           = objectName
     @objectParams         = objectParams or {}
