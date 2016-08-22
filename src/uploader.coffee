@@ -1,6 +1,5 @@
 {EventEmitter} = require 'events'
 
-async          = require 'async'
 aws            = require 'aws-sdk'
 
 class Uploader extends EventEmitter
@@ -21,7 +20,7 @@ class Uploader extends EventEmitter
     @timeout              = 300000
     @debug                = debug or false
 
-    if not @objectParams.Bucket then throw new Error "Bucket must be given"
+    throw new Error "Bucket must be given" unless @objectParams.Bucket
 
     @upload = new aws.S3.ManagedUpload { partSize: 10 * 1024 * 1024, queueSize: 1, params: @objectParams }
     @upload.minPartSize = 1024 * 1024 * 5
@@ -29,7 +28,7 @@ class Uploader extends EventEmitter
     # Progress event
     @upload.on 'httpUploadProgress', (progress) =>
       console.log "#{progress.loaded} / #{progress.total}" if @debug
-  # Send steam
+  # Send stream
   send: (callback) ->
     @upload.send (err, data) ->
       if err then console.log err, data
