@@ -4,7 +4,7 @@ aws            = require 'aws-sdk'
 
 class Uploader extends EventEmitter
   # Constructor
-  constructor: ({accessKey, secretKey, sessionToken, region, stream, objectName, objectParams, bucket, partSize, maxBufferSize, waitForPartAttempts, waitTime, debug}, @cb) ->
+  constructor: ({accessKey, secretKey, sessionToken, region, stream, objectName, objectParams, bucket, partSize, maxBufferSize, waitForPartAttempts, waitTime, service, debug}, @cb) ->
     super()
     aws.config.update
       accessKeyId:     accessKey
@@ -22,7 +22,7 @@ class Uploader extends EventEmitter
 
     throw new Error "Bucket must be given" unless @objectParams.Bucket
 
-    @upload = new aws.S3.ManagedUpload { partSize: 10 * 1024 * 1024, queueSize: 1, params: @objectParams }
+    @upload = new aws.S3.ManagedUpload { partSize: 10 * 1024 * 1024, queueSize: 1, service: service, params: @objectParams }
     @upload.minPartSize = 1024 * 1024 * 5
     @upload.queueSize   = 4
     # Progress event
