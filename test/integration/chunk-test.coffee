@@ -11,11 +11,14 @@ describe '8MB file in parts upload @integration test', ->
       buf += "0"
     source = new Buffer buf
 
+    actualDate = new Date()
+    folder = "#{actualDate.getUTCFullYear()}-#{('0' + actualDate.getUTCMonth()).slice (-2)}"
+
     uploader = new Uploader
       accessKey: process.env.AWS_S3_ACCESS_KEY
       secretKey: process.env.AWS_S3_SECRET_KEY
       bucket:    process.env.AWS_S3_TEST_BUCKET
-      objectName: "testfile" + new Date().getTime()
+      objectName: "#{folder}/testfile" + new Date().getTime()
       stream:    source
       debug:     false
     done()
