@@ -5,9 +5,9 @@ async      = require 'async'
 
 getLastFileInBucket = ({accessKey, secretKey, region, bucket}, cb) ->
   aws.config.update
-    accessKeyId:     accessKey
+    accessKeyId: accessKey
     secretAccessKey: secretKey
-    region:          region if region
+    region: region if region
 
   client = new aws.S3()
   if client
@@ -48,12 +48,13 @@ describe 'Small file upload @integration test', ->
 
 
   before (done) ->
-    source = new Buffer "key;value\ntest;1\nexample;2\n"
     filename = "#{folder}/testfileSmall" + new Date().getTime()
+    source = new Buffer 'key;value\ntest;1\nexample;2\n'
+
     uploader = new Uploader
       accessKey: process.env.AWS_S3_ACCESS_KEY
       secretKey: process.env.AWS_S3_SECRET_KEY
-      bucket:    process.env.AWS_S3_TEST_BUCKET
+      bucket: process.env.AWS_S3_TEST_BUCKET
       objectName: filename
       stream: source
       objectParams:

@@ -1,5 +1,4 @@
 {EventEmitter} = require 'events'
-
 aws            = require 'aws-sdk'
 
 class Uploader extends EventEmitter
