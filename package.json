@@ -22,7 +22,6 @@
     "coffee-script": "^1.12.5",
     "mocha": "^3.2.0",
     "sinon": "^2.1.0",
-    "streamers": "",
     "yargs": "^7.0.2"
   },
   "keywords": [
@@ -44,7 +43,8 @@
   ],
   "scripts": {
     "prepublish": "scripts/build",
-    "test": "./node_modules/.bin/mocha --compilers \"coffee:coffee-script/register\""
+    "test": "./node_modules/.bin/mocha --compilers \"coffee:coffee-script/register\"",
+    "integration-test": "./node_modules/.bin/mocha --compilers \"coffee:coffee-script/register\" --recursive"
   },
   "licenses": [
     {

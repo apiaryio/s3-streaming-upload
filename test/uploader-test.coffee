@@ -1,5 +1,5 @@
-assert     = require('chai').assert
-{Uploader} = require('../src/uploader')
+{assert}   = require 'chai'
+{Uploader} = require '../src/uploader'
 
 describe 'Setup file upload test', ->
   source = undefined
