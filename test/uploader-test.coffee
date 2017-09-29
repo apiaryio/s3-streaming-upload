@@ -5,6 +5,9 @@ describe 'Setup file upload test', ->
   source = undefined
   uploader  = undefined
 
+  objectParams =
+    ContentType: 'text/csv'
+
   before (done) ->
     source = new Buffer "key;value\ntest;1\nexample;2\n"
 
@@ -13,9 +16,8 @@ describe 'Setup file upload test', ->
       secretKey: "test-secretKey"
       bucket:    "test-bucket"
       objectName: "testfile1"
+      objectParams: objectParams
       stream: source
-      objectParams:
-        ContentType: 'text/csv'
       debug: true
     done()
 
@@ -33,3 +35,18 @@ describe 'Setup file upload test', ->
 
   it 'I have set debug', ->
     assert.ok uploader.debug
+
+  describe 'Creating a second uploader', ->
+    uploader2 = undefined
+
+    before () =>
+      uploader2 = new Uploader
+        bucket: 'test-bucket-2'
+        stream: new Buffer '...\n'
+        objectParams: objectParams
+
+    it 'I have set bucket', ->
+      assert.equal uploader2.objectParams.Bucket, 'test-bucket-2'
+
+    it 'I have not unset original bucket', ->
+      assert.equal uploader.objectParams.Bucket, 'test-bucket'

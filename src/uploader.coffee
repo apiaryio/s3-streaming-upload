@@ -12,17 +12,22 @@ class Uploader extends EventEmitter
       sessionToken:    sessionToken
       region:          region if region
 
+    params =
+      Bucket: bucket
+      Key: objectName
+      Body: stream
+
+    for k of objectParams or {}
+      params[k] ||= objectParams[k]
+
     @objectName           = objectName
-    @objectParams         = objectParams or {}
-    @objectParams.Bucket ?= bucket
-    @objectParams.Key    ?= objectName
-    @objectParams.Body   ?= stream
+    @objectParams         = params
     @timeout              = 300000
     @debug                = debug or false
 
     throw new Error "Bucket must be given" unless @objectParams.Bucket
 
-    @upload = new aws.S3.ManagedUpload { partSize: 10 * 1024 * 1024, queueSize: 1, service: service, params: @objectParams }
+    @upload = new aws.S3.ManagedUpload { partSize: 10 * 1024 * 1024, queueSize: 1, service: service, params: params }
     @upload.minPartSize = 1024 * 1024 * 5
     @upload.queueSize   = 4
     # Progress event
