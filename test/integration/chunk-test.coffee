@@ -1,5 +1,8 @@
 {assert}   = require 'chai'
 {Uploader} = require '../../src/uploader'
+CoffeeScript = require('coffee-script')
+CoffeeScript.register()
+
 
 describe '8MB file in parts upload @integration test', ->
   buf      = ''

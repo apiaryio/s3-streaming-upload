@@ -1,5 +1,7 @@
 {assert}   = require 'chai'
 {Uploader} = require '../src/uploader'
+CoffeeScript = require('coffee-script')
+CoffeeScript.register()
 
 describe 'Setup file upload test', ->
   source = undefined

@@ -2,6 +2,9 @@
 {Uploader} = require '../../src/uploader'
 aws        = require 'aws-sdk'
 async      = require 'async'
+CoffeeScript = require('coffee-script')
+CoffeeScript.register()
+
 
 getLastFileInBucket = ({accessKey, secretKey, region, bucket}, cb) ->
   aws.config.update
