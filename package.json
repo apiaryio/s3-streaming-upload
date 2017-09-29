@@ -18,6 +18,7 @@
     "readable-stream": "~2.3.3"
   },
   "devDependencies": {
+    "async": "",
     "chai": "",
     "coffee-script": "",
     "gulp": "",
