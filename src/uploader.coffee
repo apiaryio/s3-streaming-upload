@@ -4,13 +4,14 @@ aws            = require 'aws-sdk'
 
 class Uploader extends EventEmitter
   # Constructor
-  constructor: ({accessKey, secretKey, sessionToken, region, stream, objectName, objectParams, bucket, partSize, maxBufferSize, waitForPartAttempts, waitTime, service, debug}, @cb) ->
+  constructor: ({accessKey, secretKey, sessionToken, region, stream, objectName, objectParams, bucket, partSize, maxBufferSize, waitForPartAttempts, waitTime, service, debug, endpoint}, @cb) ->
     super()
     aws.config.update
       accessKeyId:     accessKey
       secretAccessKey: secretKey
       sessionToken:    sessionToken
       region:          region if region
+      endpoint:        endpoint if endpoint
 
     params =
       Bucket: bucket
