@@ -18,6 +18,7 @@
     "readable-stream": "^3.3.0"
   },
   "devDependencies": {
+    "async": "^2.6.2",
     "chai": "^4.2.0",
     "mocha": "^6.1.4",
     "sinon": "^7.3.2",
@@ -42,7 +43,8 @@
     "s3 streaming upload"
   ],
   "scripts": {
-    "test": "./node_modules/.bin/mocha"
+    "test": "./node_modules/.bin/mocha",
+    "integration-test": "./node_modules/.bin/mocha test/integration"
   },
   "licenses": [
     {
