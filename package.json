@@ -1,7 +1,7 @@
 {
   "name": "s3-streaming-upload",
   "description": "Streaming upload to S3",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "author": "Apiary Inc <support@apiary.io>",
   "contributors": [
     {
@@ -14,21 +14,15 @@
     }
   ],
   "dependencies": {
-    "aws-sdk": "~2.1.7",
-    "readable-stream": "~1.0.33"
+    "aws-sdk": "^2.449.0",
+    "readable-stream": "^3.3.0"
   },
   "devDependencies": {
-    "chai": "",
-    "coffee-script": "~1.6.3",
-    "gulp": "",
-    "gulp-coffeelint": "",
-    "gulp-coffee-istanbul": "",
-    "gulp-mocha": "",
-    "gulp-watch": "",
-    "mocha": "",
-    "sinon": "",
-    "streamers": "",
-    "yargs": ""
+    "chai": "^4.2.0",
+    "mocha": "^6.1.4",
+    "sinon": "^7.3.2",
+    "streamers": "^0.1.1",
+    "yargs": "^13.2.2"
   },
   "keywords": [
     "aws",
@@ -48,8 +42,7 @@
     "s3 streaming upload"
   ],
   "scripts": {
-    "prepublish": "scripts/build",
-    "test": "./node_modules/.bin/mocha --compilers \"coffee:coffee-script\""
+    "test": "./node_modules/.bin/mocha"
   },
   "licenses": [
     {
@@ -64,8 +57,8 @@
   "bugs": {
     "url": "http://github.com/apiaryio/s3-streaming-upload/issues"
   },
-  "main": "lib/",
+  "main": "src/",
   "engines": {
-    "node": "*"
+    "node": ">8"
   }
 }
