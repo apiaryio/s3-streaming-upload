@@ -1,1 +1,1 @@
-module.exports = require('./uploader');
+module.exports = require ('./uploader');
