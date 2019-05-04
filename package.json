@@ -44,7 +44,8 @@
   ],
   "scripts": {
     "test": "./node_modules/.bin/mocha",
-    "integration-test": "./node_modules/.bin/mocha test/integration"
+    "integration-test": "./node_modules/.bin/mocha test/integration",
+    "oci-integration-test": "./node_modules/.bin/mocha test/oci-integration"
   },
   "licenses": [
     {

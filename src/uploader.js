@@ -18,6 +18,7 @@ class Uploader extends EventEmitter {
       maxBufferSize,
       waitForPartAttempts,
       waitTime,
+      ociOptions,
       service,
       debug,
     },
@@ -25,12 +26,23 @@ class Uploader extends EventEmitter {
   ) {
     super ();
     this.cb = cb;
+
     aws.config.update ({
       accessKeyId: accessKey,
       secretAccessKey: secretKey,
       sessionToken,
-      region: region ? region : undefined,
+      region: this.region ? this.region : undefined,
     });
+
+    if (this.ociOptions) {
+      this.endpoint = `${this.ociOptions.tenancy}.compat.objectstorage.${this.ociOptions.region}.oraclecloud.com`;
+      this.region = this.ociOptions.region;
+      aws.config.update ({
+        region: this.region,
+        endpoint: this.endpoint,
+        s3ForcePathStyle: true,
+      });
+    }
 
     const params = {
       Bucket: bucket,
