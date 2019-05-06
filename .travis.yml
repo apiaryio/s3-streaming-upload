@@ -1,7 +1,8 @@
 language: node_js
 node_js:
-  - "8"
-  - "10"
+  - '8'
+  - '10'
+  - '12'
 notifications:
   hipchat:
     rooms:
@@ -10,11 +11,10 @@ notifications:
       - '%{repository}#%{build_number} (%{branch} - %{commit} : %{author}): %{message} (<a href="%{build_url}">Details</a>/<a href="%{compare_url}">Change view</a>)'
     format: html
   irc:
-    channels: "irc.freenode.org#apiary"
+    channels: 'irc.freenode.org#apiary'
     on_success: always
     on_failure: always
 
 cache:
   directories:
     - node_modules
-

@@ -44,7 +44,8 @@
   ],
   "scripts": {
     "test": "./node_modules/.bin/mocha",
-    "test:integration": "./node_modules/.bin/mocha test/integration"
+    "test:integration": "./node_modules/.bin/mocha test/integration",
+    "test:integration:oci": "./node_modules/.bin/mocha test/oci-integration"
   },
   "licenses": [
     {
@@ -59,7 +60,7 @@
   "bugs": {
     "url": "http://github.com/apiaryio/s3-streaming-upload/issues"
   },
-  "main": "src/",
+  "main": "src/index.js",
   "engines": {
     "node": ">8"
   }
