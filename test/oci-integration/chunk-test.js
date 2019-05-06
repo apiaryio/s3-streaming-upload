@@ -2,7 +2,7 @@ const { assert } = require('chai');
 const { Uploader } = require('../../src/uploader');
 const aws = require('aws-sdk');
 
-describe('8MB file in parts upload @integration test', () => {
+describe('OCI: 8MB file in parts upload @integration test', () => {
   let buf = '';
   let source = undefined;
   let uploader = undefined;

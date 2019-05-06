@@ -1,7 +1,7 @@
 const { assert } = require('chai');
 const { Uploader } = require('../../src/uploader');
 
-describe('8MB file in parts upload @integration test', () => {
+describe('AWS: 8MB file in parts upload @integration test', () => {
   let buf = '';
   let source = undefined;
   let uploader = undefined;
