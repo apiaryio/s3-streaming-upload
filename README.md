@@ -66,3 +66,36 @@ upload = new Uploader({
   },
 });
 ```
+
+### Example usage with Oracle Cloud (OCI) compatible S3 API
+
+```javascript
+region = process.env.OCI_REGION;
+tenancy = process.env.OCI_TENANCY;
+// define custom service
+service = new aws.S3({
+  apiVersion: '2006-03-01',
+  credentials: {
+    accessKeyId: process.env.AWS_S3_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_S3_SECRET_KEY,
+  },
+  params: { Bucket: process.env.AWS_S3_TEST_BUCKET },
+  endpoint: `${tenancy}.compat.objectstorage.${region}.oraclecloud.com`,
+  region: region,
+  signatureVersion: 'v4',
+  s3ForcePathStyle: true,
+});
+
+uploader = new Uploader({
+  accessKey: process.env.AWS_S3_ACCESS_KEY,
+  secretKey: process.env.AWS_S3_SECRET_KEY,
+  bucket: process.env.AWS_S3_TEST_BUCKET,
+  objectName: filename,
+  stream: source,
+  service: service,
+  objectParams: {
+    ContentType: 'text/csv',
+  },
+  debug: true,
+});
+```
