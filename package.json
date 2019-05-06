@@ -60,7 +60,7 @@
   "bugs": {
     "url": "http://github.com/apiaryio/s3-streaming-upload/issues"
   },
-  "main": "src/",
+  "main": "src/index.js",
   "engines": {
     "node": ">8"
   }

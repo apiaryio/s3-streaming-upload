@@ -1,5 +1,5 @@
 const { assert } = require('chai');
-const { Uploader } = require('../src/uploader');
+const { Uploader } = require('../src');
 
 describe('Setup file upload test', function() {
   let source = undefined;

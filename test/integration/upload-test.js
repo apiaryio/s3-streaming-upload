@@ -6,7 +6,7 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 const { assert } = require('chai');
-const { Uploader } = require('../../src/uploader');
+const { Uploader } = require('../../src');
 const aws = require('aws-sdk');
 const async = require('async');
 
