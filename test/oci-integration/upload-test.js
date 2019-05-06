@@ -13,7 +13,7 @@ describe('Small file upload @integration test', function() {
   )}`;
 
   before(function(done) {
-    source = new Buffer.from('key;value\ntest;1\nexample;2\n');
+    source = Buffer.from('key;value\ntest;1\nexample;2\n');
     filename = `${folder}/testfileSmall` + new Date().getTime();
     region = process.env.OCI_REGION;
     tenancy = process.env.OCI_TENANCY;
