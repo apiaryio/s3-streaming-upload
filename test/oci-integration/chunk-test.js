@@ -1,24 +1,21 @@
 const { assert } = require('chai');
-const { Uploader } = require('../../src');
 const aws = require('aws-sdk');
+const { Uploader } = require('../../src');
 
 describe('OCI: 8MB file in parts upload @integration test', () => {
-  let buf = '';
-  let source = undefined;
-  let uploader = undefined;
+  let source;
+  let uploader;
 
-  before(done => {
+  before((done) => {
     source = Buffer.alloc(8388608, '0');
 
     const actualDate = new Date();
-    const folder = `${actualDate.getUTCFullYear()}-${`0${actualDate.getUTCMonth()}`.slice(
-      -2,
-    )}`;
+    const folder = `${actualDate.getUTCFullYear()}-${`0${actualDate.getUTCMonth()}`.slice(-2)}`;
 
-    region = process.env.OCI_REGION;
-    tenancy = process.env.OCI_TENANCY;
+    const region = process.env.OCI_REGION;
+    const tenancy = process.env.OCI_TENANCY;
 
-    service = new aws.S3({
+    const service = new aws.S3({
       apiVersion: '2006-03-01',
       credentials: {
         accessKeyId: process.env.AWS_S3_ACCESS_KEY,
@@ -26,7 +23,7 @@ describe('OCI: 8MB file in parts upload @integration test', () => {
       },
       params: { Bucket: process.env.AWS_S3_TEST_BUCKET },
       endpoint: `${tenancy}.compat.objectstorage.${region}.oraclecloud.com`,
-      region: region,
+      region,
       signatureVersion: 'v4',
       s3ForcePathStyle: true,
     });
@@ -35,23 +32,23 @@ describe('OCI: 8MB file in parts upload @integration test', () => {
       accessKey: process.env.AWS_S3_ACCESS_KEY,
       secretKey: process.env.AWS_S3_SECRET_KEY,
       bucket: process.env.AWS_S3_TEST_BUCKET,
-      objectName: `${folder}/testfile` + new Date().getTime(),
+      objectName: `${folder}/testfile${new Date().getTime()}`,
       stream: source,
-      service: service,
+      service,
       debug: false,
     });
-    return done();
+    done();
   });
 
   describe(' and when I write a file and finish', () => {
     let data = null;
 
-    before(function(done) {
+    before(function send(done) {
       this.timeout(parseInt(process.env.TEST_TIMEOUT, 10 || 300000));
 
-      uploader.send(function(err, returnedData) {
+      uploader.send((err, returnedData) => {
         data = returnedData;
-        return done(err);
+        done(err);
       });
     });
 
