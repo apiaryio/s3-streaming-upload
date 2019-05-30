@@ -48,7 +48,7 @@ class Uploader extends EventEmitter {
     }
 
     this.upload = new aws.S3.ManagedUpload({
-      partSize: 10 * 1024 * 1024,
+      partSize: partSize || 10 * 1024 * 1024,
       queueSize: 4,
       service,
       params,
