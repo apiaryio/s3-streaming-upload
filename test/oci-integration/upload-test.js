@@ -1,23 +1,21 @@
 const { assert } = require('chai');
-const { Uploader } = require('../../src');
 const aws = require('aws-sdk');
+const { Uploader } = require('../../src');
 
-describe('OCI: Small file upload @integration test', function() {
-  let source = undefined;
-  let uploader = undefined;
-  let filename = undefined;
+describe('OCI: Small file upload @integration test', () => {
+  let source;
+  let uploader;
+  let filename;
 
   const actualDate = new Date();
-  const folder = `${actualDate.getUTCFullYear()}-${`0${actualDate.getUTCMonth()}`.slice(
-    -2,
-  )}`;
+  const folder = `${actualDate.getUTCFullYear()}-${`0${actualDate.getUTCMonth()}`.slice(-2)}`;
 
-  before(function(done) {
+  before((done) => {
     source = Buffer.from('key;value\ntest;1\nexample;2\n');
-    filename = `${folder}/testfileSmall` + new Date().getTime();
-    region = process.env.OCI_REGION;
-    tenancy = process.env.OCI_TENANCY;
-    service = new aws.S3({
+    filename = `${folder}/testfileSmall${new Date().getTime()}`;
+    const region = process.env.OCI_REGION;
+    const tenancy = process.env.OCI_TENANCY;
+    const service = new aws.S3({
       apiVersion: '2006-03-01',
       credentials: {
         accessKeyId: process.env.AWS_S3_ACCESS_KEY,
@@ -25,7 +23,7 @@ describe('OCI: Small file upload @integration test', function() {
       },
       params: { Bucket: process.env.AWS_S3_TEST_BUCKET },
       endpoint: `${tenancy}.compat.objectstorage.${region}.oraclecloud.com`,
-      region: region,
+      region,
       signatureVersion: 'v4',
       s3ForcePathStyle: true,
     });
@@ -36,24 +34,24 @@ describe('OCI: Small file upload @integration test', function() {
       bucket: process.env.AWS_S3_TEST_BUCKET,
       objectName: filename,
       stream: source,
-      service: service,
+      service,
       objectParams: {
         ContentType: 'text/csv',
       },
       debug: true,
     });
-    return done();
+    done();
   });
 
-  return describe(' and When I write a file and finish', function() {
+  describe(' and When I write a file and finish', () => {
     let data = null;
 
-    before(function(done) {
+    before(function send(done) {
       this.timeout(parseInt(process.env.TEST_TIMEOUT, 10 || 300000));
 
-      return uploader.send(function(err, returnedData) {
+      uploader.send((err, returnedData) => {
         data = returnedData;
-        return done(err);
+        done(err);
       });
     });
 

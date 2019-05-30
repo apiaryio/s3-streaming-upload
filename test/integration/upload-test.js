@@ -6,43 +6,36 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 const { assert } = require('chai');
-const { Uploader } = require('../../src');
 const aws = require('aws-sdk');
 const async = require('async');
+const { Uploader } = require('../../src');
 
-const getLastFileInBucket = function(
-  { accessKey, secretKey, region, bucket },
-  cb,
-) {
+const getLastFileInBucket = ({ accessKey, secretKey, region, bucket }, cb) => {
   aws.config.update({
     accessKeyId: accessKey,
     secretAccessKey: secretKey,
-    region: region ? region : undefined,
+    region: region || undefined,
   });
 
   const client = new aws.S3();
   if (client) {
     const params = { Bucket: bucket };
 
-    return client.listObjects(params, function(err, data) {
+    client.listObjects(params, (err, data) => {
       if (err) {
-        return cb(err);
+        cb(err);
       }
 
-      if (!__guard__(data != null ? data.Contents : undefined, x => x.length)) {
-        cb(
-          new Error(
-            `No files in ${data != null ? data.Name : undefined} S3 bucket`,
-          ),
-        );
+      if (!data || !data.Contents || !data.Contents.length) {
+        cb(new Error(`No files in ${data ? data.Name : undefined} S3 bucket`));
       }
 
       let prevDate = 0;
       let newestFile = null;
 
-      return async.each(
+      async.each(
         data.Contents,
-        function(file, callback) {
+        (file, callback) => {
           const curDate = new Date(file.LastModified);
 
           if (curDate > prevDate) {
@@ -50,29 +43,27 @@ const getLastFileInBucket = function(
             prevDate = curDate;
           }
 
-          return callback();
+          callback();
         },
-        err => cb(err, newestFile),
+        asyncErr => cb(asyncErr, newestFile)
       );
     });
   } else {
-    return cb(new Error('Error aws client init'));
+    cb(new Error('Error aws client init'));
   }
 };
 
-describe('AWS: Small file upload @integration test', function() {
-  let source = undefined;
-  let uploader = undefined;
-  let filename = undefined;
+describe('AWS: Small file upload @integration test', () => {
+  let source;
+  let uploader;
+  let filename;
 
   const actualDate = new Date();
-  const folder = `${actualDate.getUTCFullYear()}-${`0${actualDate.getUTCMonth()}`.slice(
-    -2,
-  )}`;
+  const folder = `${actualDate.getUTCFullYear()}-${`0${actualDate.getUTCMonth()}`.slice(-2)}`;
 
-  before(function(done) {
-    source = new Buffer('key;value\ntest;1\nexample;2\n');
-    filename = `${folder}/testfileSmall` + new Date().getTime();
+  before((done) => {
+    source = Buffer.from('key;value\ntest;1\nexample;2\n');
+    filename = `${folder}/testfileSmall${new Date().getTime()}`;
     uploader = new Uploader({
       accessKey: process.env.AWS_S3_ACCESS_KEY,
       secretKey: process.env.AWS_S3_SECRET_KEY,
@@ -84,43 +75,36 @@ describe('AWS: Small file upload @integration test', function() {
       },
       debug: true,
     });
-    return done();
+    done();
   });
 
-  return describe(' and When I write a file and finish', function() {
+  describe(' and When I write a file and finish', () => {
     let data = null;
 
-    before(function(done) {
+    before(function send(done) {
       this.timeout(parseInt(process.env.TEST_TIMEOUT, 10 || 300000));
 
-      return uploader.send(function(err, returnedData) {
+      uploader.send((err, returnedData) => {
         data = returnedData;
-        return done(err);
+        done(err);
       });
     });
 
     it('I have received ETag', () => assert.equal(data.ETag.length, 34));
 
-    return it('List last file in bucket', done =>
-      getLastFileInBucket(
-        {
-          accessKey: process.env.AWS_S3_ACCESS_KEY,
-          secretKey: process.env.AWS_S3_SECRET_KEY,
-          bucket: process.env.AWS_S3_TEST_BUCKET,
-        },
-        function(err, file) {
-          if (err) {
-            console.error(`Error: ${err}`);
-          }
-          assert.equal(file, filename);
-          return done(err);
-        },
-      ));
+    it('List last file in bucket', done => getLastFileInBucket(
+      {
+        accessKey: process.env.AWS_S3_ACCESS_KEY,
+        secretKey: process.env.AWS_S3_SECRET_KEY,
+        bucket: process.env.AWS_S3_TEST_BUCKET,
+      },
+      (err, file) => {
+        if (err) {
+          console.error(`Error: ${err}`);
+        }
+        assert.equal(file, filename);
+        done(err);
+      }
+    ));
   });
 });
-
-function __guard__(value, transform) {
-  return typeof value !== 'undefined' && value !== null
-    ? transform(value)
-    : undefined;
-}

@@ -4,32 +4,26 @@ const aws = require('aws-sdk');
 
 class Uploader extends EventEmitter {
   // Constructor
-  constructor(
-    {
-      accessKey,
-      secretKey,
-      sessionToken,
-      region,
-      stream,
-      objectName,
-      objectParams,
-      bucket,
-      partSize,
-      maxBufferSize,
-      waitForPartAttempts,
-      waitTime,
-      service,
-      debug,
-    },
-    cb,
-  ) {
+  constructor({
+    accessKey,
+    secretKey,
+    sessionToken,
+    region,
+    stream,
+    objectName,
+    objectParams,
+    bucket,
+    partSize,
+    service,
+    debug,
+  }, cb) {
     super();
     this.cb = cb;
     aws.config.update({
       accessKeyId: accessKey,
       secretAccessKey: secretKey,
       sessionToken,
-      region: region ? region : undefined,
+      region: region || undefined,
     });
 
     const params = {
@@ -38,7 +32,7 @@ class Uploader extends EventEmitter {
       Body: stream,
     };
 
-    for (let k in objectParams || {}) {
+    for (const k in objectParams || {}) {
       if (!params[k]) {
         params[k] = objectParams[k];
       }
@@ -54,25 +48,26 @@ class Uploader extends EventEmitter {
     }
 
     this.upload = new aws.S3.ManagedUpload({
-      partSize: 10 * 1024 * 1024,
+      partSize: partSize || 10 * 1024 * 1024,
       queueSize: 4,
       service,
       params,
     });
     // Progress event
-    this.upload.on('httpUploadProgress', progress => {
+    this.upload.on('httpUploadProgress', (progress) => {
       if (this.debug) {
-        return console.log(`${progress.loaded} / ${progress.total}`);
+        console.log(`${progress.loaded} / ${progress.total}`);
       }
     });
   }
+
   // Send stream
   send(callback) {
-    return this.upload.send(function(err, data) {
+    this.upload.send((err, data) => {
       if (err) {
         console.log(err, data);
       }
-      return callback(err, data);
+      callback(err, data);
     });
   }
 }
