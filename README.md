@@ -1,6 +1,6 @@
-## s3-streaming-upload [![Build Status](https://travis-ci.org/apiaryio/s3-streaming-upload.png?branch=master)](https://travis-ci.org/apiaryio/s3-streaming-upload) [![Gitter chat](https://badges.gitter.im/apiaryio/s3-streaming-upload.png)](https://gitter.im/apiaryio/s3-streaming-upload)
+## s3-streaming-upload ![s3-streaming-upload](https://github.com/apiaryio/s3-streaming-upload/workflows/s3-streaming-upload%20CI/badge.svg)
 
-[s3-streaming-upload](https://github.com/apiaryio/s3-streaming-upload) is [node.js](http://nodejs.org) library that listens to your [stream](http://nodejs.org/docs/v0.8.9/api/stream.html) and upload its data to Amazon S3.
+[s3-streaming-upload](https://github.com/apiaryio/s3-streaming-upload) is [node.js](http://nodejs.org) library that listens to your [stream](http://nodejs.org/docs/v0.8.9/api/stream.html) and upload its data to Amazon S3 and OCI Bucket Store.
 
 It is heavily inspired by [knox-mpu](https://github.com/nathanoehlman/knox-mpu), but unlike it, it does not buffer data to disk and is build on top of [official AWS SDK](https://github.com/aws/aws-sdk-js) instead of knox.
 
