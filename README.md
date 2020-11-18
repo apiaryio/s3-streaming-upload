@@ -1,4 +1,4 @@
-## s3-streaming-upload ![s3-streaming-upload](https://github.com/apiaryio/s3-streaming-upload/workflows/s3-streaming-upload%20CI/badge.svg)
+## s3-streaming-upload [![s3-streaming-upload](https://github.com/apiaryio/s3-streaming-upload/workflows/s3-streaming-upload%20CI/badge.svg)](https://github.com/apiaryio/s3-streaming-upload/actions?query=workflow%3A%22s3-streaming-upload+CI%22)
 
 [s3-streaming-upload](https://github.com/apiaryio/s3-streaming-upload) is [node.js](http://nodejs.org) library that listens to your [stream](http://nodejs.org/docs/v0.8.9/api/stream.html) and upload its data to Amazon S3 and OCI Bucket Store.
 
