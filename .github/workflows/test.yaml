@@ -1,0 +1,28 @@
+name: s3-streaming-upload CI
+
+on: [pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [12.x, 14.x]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: npm install
+    - run: npm test
+    - name: Integration tests
+      env:
+        AWS_S3_ACCESS_KEY: ${{ secrets.AWS_S3_ACCESS_KEY }}
+        AWS_S3_SECRET_KEY: ${{ secrets.AWS_S3_SECRET_KEY }}
+        AWS_S3_TEST_BUCKET: ${{ secrets.AWS_S3_TEST_BUCKET }}
+        OCI_TENANCY: ${{ secrets.OCI_TENANCY }}
+        OCI_REGION: ${{ secrets.OCI_REGION }}
+      run: npm run test:integration:oci

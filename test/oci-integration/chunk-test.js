@@ -44,7 +44,7 @@ describe('OCI: 8MB file in parts upload @integration test', () => {
     let data = null;
 
     before(function send(done) {
-      this.timeout(parseInt(process.env.TEST_TIMEOUT, 10 || 300000));
+      this.timeout(parseInt(process.env.TEST_TIMEOUT, 10) || 300000);
 
       uploader.send((err, returnedData) => {
         data = returnedData;

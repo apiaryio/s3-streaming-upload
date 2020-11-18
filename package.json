@@ -1,7 +1,7 @@
 {
   "name": "s3-streaming-upload",
   "description": "Streaming upload to S3",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "author": "Apiary Inc <support@apiary.io>",
   "contributors": [
     {
@@ -20,7 +20,7 @@
   "devDependencies": {
     "async": "^2.6.2",
     "chai": "^4.2.0",
-    "mocha": "^6.1.4",
+    "mocha": "^8.2.1",
     "sinon": "^7.3.2",
     "streamers": "^0.1.1",
     "yargs": "^13.2.2"
@@ -62,6 +62,6 @@
   },
   "main": "src/index.js",
   "engines": {
-    "node": ">8"
+    "node": ">12"
   }
 }
