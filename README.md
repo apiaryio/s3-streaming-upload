@@ -6,6 +6,7 @@ It is heavily inspired by [knox-mpu](https://github.com/nathanoehlman/knox-mpu),
 
 ### Changes
 
+- Version 0.3.2 NodeJS 12+ supported.
 - Version 0.3.x Change from Coffee-script to Javascript. NodeJS 6 and 8 supported.
 
 - Version 0.2.x using [ManagedUpload API](http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3/ManagedUpload.html). NodeJS 0.10 and 0.12 supported.
