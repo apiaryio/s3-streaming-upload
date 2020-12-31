@@ -80,7 +80,7 @@ service = new aws.S3({
     accessKeyId: process.env.BUCKET_ACCESS_KEY,
     secretAccessKey: process.env.BUCKET_SECRET_KEY,
   },
-  params: { Bucket: process.env.BUCKET_TEST_BUCKET },
+  params: { Bucket: process.env.BUCKET_NAME },
   endpoint: `${tenancy}.compat.objectstorage.${region}.oraclecloud.com`,
   region: region,
   signatureVersion: 'v4',
