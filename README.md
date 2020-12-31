@@ -77,10 +77,10 @@ tenancy = process.env.OCI_TENANCY;
 service = new aws.S3({
   apiVersion: '2006-03-01',
   credentials: {
-    accessKeyId: process.env.AWS_S3_ACCESS_KEY,
-    secretAccessKey: process.env.AWS_S3_SECRET_KEY,
+    accessKeyId: process.env.BUCKET_ACCESS_KEY,
+    secretAccessKey: process.env.BUCKET_SECRET_KEY,
   },
-  params: { Bucket: process.env.AWS_S3_TEST_BUCKET },
+  params: { Bucket: process.env.BUCKET_TEST_BUCKET },
   endpoint: `${tenancy}.compat.objectstorage.${region}.oraclecloud.com`,
   region: region,
   signatureVersion: 'v4',
@@ -88,9 +88,9 @@ service = new aws.S3({
 });
 
 uploader = new Uploader({
-  accessKey: process.env.AWS_S3_ACCESS_KEY,
-  secretKey: process.env.AWS_S3_SECRET_KEY,
-  bucket: process.env.AWS_S3_TEST_BUCKET,
+  accessKey: process.env.BUCKET_ACCESS_KEY,
+  secretKey: process.env.BUCKET_SECRET_KEY,
+  bucket: process.env.BUCKET_NAME,
   objectName: filename,
   stream: source,
   service: service,
